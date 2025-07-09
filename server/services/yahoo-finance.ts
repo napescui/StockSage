@@ -25,19 +25,33 @@ try:
             "volume": int(row["Volume"])
         })
     
-    # Extract key info
+    # Extract key info with proper validation
+    current_price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
+    market_cap = info.get("marketCap", 0)
+    volume = info.get("volume") or info.get("regularMarketVolume") or 0
+    pe = info.get("trailingPE") or info.get("forwardPE") or 0
+    high52w = info.get("fiftyTwoWeekHigh", 0)
+    low52w = info.get("fiftyTwoWeekLow", 0)
+    change = info.get("regularMarketChange", 0)
+    change_percent = info.get("regularMarketChangePercent", 0)
+    
+    # Validate if this is a valid stock (has basic info)
+    if not current_price and not market_cap and not volume:
+        raise Exception(f"Stock symbol {symbol} not found or invalid")
+    
     result = {
         "symbol": info.get("symbol", "${symbol}"),
-        "name": info.get("longName", "${symbol}"),
-        "currentPrice": info.get("currentPrice", 0),
-        "marketCap": info.get("marketCap", 0),
-        "volume": info.get("volume", 0),
-        "pe": info.get("trailingPE", 0),
-        "high52w": info.get("fiftyTwoWeekHigh", 0),
-        "low52w": info.get("fiftyTwoWeekLow", 0),
-        "change": info.get("regularMarketChange", 0),
-        "changePercent": info.get("regularMarketChangePercent", 0),
-        "history": history_data
+        "name": info.get("longName") or info.get("shortName") or "${symbol}",
+        "currentPrice": float(current_price) if current_price else 0,
+        "marketCap": int(market_cap) if market_cap else 0,
+        "volume": int(volume) if volume else 0,
+        "pe": float(pe) if pe and pe != "N/A" else 0,
+        "high52w": float(high52w) if high52w else 0,
+        "low52w": float(low52w) if low52w else 0,
+        "change": float(change) if change else 0,
+        "changePercent": float(change_percent) if change_percent else 0,
+        "history": history_data,
+        "isValid": bool(current_price or market_cap or volume)
     }
     
     print(json.dumps(result))
@@ -99,6 +113,22 @@ export async function formatVolume(volume: number): Promise<string> {
   } else {
     return volume.toString();
   }
+}
+
+export async function suggestSimilarStocks(symbol: string): Promise<string[]> {
+  const commonStocks = [
+    'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NFLX', 'NVDA', 'AMD', 'INTC',
+    'BABA', 'DIS', 'UBER', 'LYFT', 'SNAP', 'TWTR', 'COIN', 'PLTR', 'ROKU', 'SQ',
+    'PYPL', 'ADBE', 'CRM', 'ORCL', 'IBM', 'CSCO', 'QCOM', 'AVGO', 'TXN', 'AMAT',
+    'SPY', 'QQQ', 'VTI', 'IWM', 'EEM', 'GLD', 'SLV', 'USO', 'TLT', 'HYG'
+  ];
+  
+  const suggestions = commonStocks.filter(stock => 
+    stock.toLowerCase().includes(symbol.toLowerCase()) || 
+    symbol.toLowerCase().includes(stock.toLowerCase())
+  );
+  
+  return suggestions.slice(0, 5);
 }
 
 export function calculateTechnicalIndicators(stockData: any[]): TechnicalIndicators {

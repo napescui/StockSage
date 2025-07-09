@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { fetchStockData, formatMarketCap, formatVolume, calculateTechnicalIndicators } from "./services/yahoo-finance";
+import { fetchStockData, formatMarketCap, formatVolume, calculateTechnicalIndicators, suggestSimilarStocks } from "./services/yahoo-finance";
 import { analyzeStock, generateStockInsight } from "./services/gemini";
 import { insertStockDataSchema, insertChatMessageSchema } from "@shared/schema";
 
