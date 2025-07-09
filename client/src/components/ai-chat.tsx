@@ -18,7 +18,7 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
   const { toast } = useToast();
 
   const { data: chatHistory = [] } = useQuery({
-    queryKey: ['/api/chat', currentSymbol],
+    queryKey: [`/api/chat/${currentSymbol}`],
     enabled: !!currentSymbol,
   });
 
@@ -28,7 +28,7 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/chat', currentSymbol] });
+      queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentSymbol}`] });
       setMessage("");
     },
     onError: (error) => {

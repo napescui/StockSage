@@ -12,7 +12,7 @@ interface StockChartProps {
 export default function StockChart({ symbol, period }: StockChartProps) {
   const plotRef = useRef<HTMLDivElement>(null);
   const { data: stockData, isLoading, error } = useQuery({
-    queryKey: ['/api/stock', symbol, period],
+    queryKey: [`/api/stock/${symbol}?period=${period}`],
     enabled: !!symbol,
   });
 

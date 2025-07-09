@@ -11,7 +11,7 @@ interface TechnicalIndicatorsProps {
 
 export default function TechnicalIndicators({ symbol, period }: TechnicalIndicatorsProps) {
   const { data: stockData, isLoading } = useQuery({
-    queryKey: ['/api/stock', symbol, period],
+    queryKey: [`/api/stock/${symbol}?period=${period}`],
     enabled: !!symbol,
   });
 

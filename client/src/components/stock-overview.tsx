@@ -10,7 +10,7 @@ interface StockOverviewProps {
 
 export default function StockOverview({ symbol, period }: StockOverviewProps) {
   const { data: stockData, isLoading, error } = useQuery({
-    queryKey: ['/api/stock', symbol, period],
+    queryKey: [`/api/stock/${symbol}?period=${period}`],
     enabled: !!symbol,
   });
 

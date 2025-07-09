@@ -17,7 +17,7 @@ export default function DataTable({ symbol }: DataTableProps) {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data: historicalData = [], isLoading } = useQuery({
-    queryKey: ['/api/stock', symbol, 'history'],
+    queryKey: [`/api/stock/${symbol}/history`],
     enabled: !!symbol,
   });
 
