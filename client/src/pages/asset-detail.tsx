@@ -12,6 +12,8 @@ import DataTable from "@/components/data-table";
 import AIChat from "@/components/ai-chat";
 import { FINANCIAL_INSTRUMENTS } from "@shared/financial-data";
 import RealTimeDashboard from "@/components/real-time-dashboard";
+import FinancialDataGuard from "@/components/financial-data-guard";
+import EntityNews from "@/components/entity-news";
 
 export default function AssetDetail() {
   const { symbol } = useParams<{ symbol: string }>();
@@ -102,14 +104,27 @@ export default function AssetDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Charts and Data */}
           <div className="lg:col-span-2 space-y-6">
-            <StockOverview symbol={currentSymbol} period={currentPeriod} />
+            <FinancialDataGuard title="Ringkasan Keuangan">
+              <StockOverview symbol={currentSymbol} period={currentPeriod} />
+            </FinancialDataGuard>
+            
             <LiveChart symbol={currentSymbol} period={currentPeriod} onPeriodChange={setPeriod} />
-            <TechnicalIndicators symbol={currentSymbol} period={currentPeriod} />
-            <DataTable symbol={currentSymbol} />
+            
+            <FinancialDataGuard title="Indikator Teknikal">
+              <TechnicalIndicators symbol={currentSymbol} period={currentPeriod} />
+            </FinancialDataGuard>
+            
+            <FinancialDataGuard title="Data Historis">
+              <DataTable symbol={currentSymbol} />
+            </FinancialDataGuard>
           </div>
 
-          {/* Right Column - AI Chat */}
+          {/* Right Column - AI Chat and News */}
           <div className="space-y-6">
+            <EntityNews 
+              symbol={currentSymbol} 
+              companyName={instrumentInfo?.name}
+            />
             <AIChat currentSymbol={currentSymbol} />
           </div>
         </div>

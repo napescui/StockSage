@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Search, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { CATEGORIES, getInstrumentsByCategory, type FinancialInstrument } from "@shared/financial-data";
 import MiniChart from "@/components/mini-chart";
+import FinancialDataGuard from "@/components/financial-data-guard";
 
 interface CategoryViewProps {
   category: string;

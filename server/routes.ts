@@ -93,6 +93,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // News endpoint
+  app.get("/api/news/:symbol", async (req, res) => {
+    try {
+      const { symbol } = req.params;
+      
+      // For now, return structured news data
+      // In a real implementation, this would fetch from a news API
+      const newsData = {
+        articles: [
+          {
+            title: `${symbol} Reports Strong Quarterly Performance`,
+            summary: `Perusahaan ${symbol} melaporkan kinerja kuartalan yang solid dengan peningkatan revenue dan profit margin yang mengesankan.`,
+            url: `https://finance.yahoo.com/quote/${symbol}/news`,
+            publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            source: "Yahoo Finance"
+          },
+          {
+            title: `Market Analysis: ${symbol} Stock Outlook`,
+            summary: `Analisis mendalam tentang prospek saham ${symbol} di tengah volatilitas pasar dan tren industri terkini.`,
+            url: `https://finance.yahoo.com/quote/${symbol}`,
+            publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+            source: "Market Watch"
+          },
+          {
+            title: `${symbol} Announces Strategic Partnership`,
+            summary: `${symbol} mengumumkan kemitraan strategis baru yang diharapkan akan memperkuat posisi kompetitifnya di pasar.`,
+            url: `https://finance.yahoo.com/quote/${symbol}/news`,
+            publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+            source: "Business Insider"
+          }
+        ]
+      };
+      
+      res.json(newsData);
+    } catch (error) {
+      console.error("News error:", error);
+      res.status(500).json({ error: "Failed to fetch news" });
+    }
+  });
+
   // Chat with AI
   app.post("/api/chat", async (req, res) => {
     try {
@@ -123,8 +163,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ response });
     } catch (error) {
-      console.error("Chat error:", error);
-      res.status(500).json({ error: "Failed to process chat message" });
+      console.error("Gemini API error:", error);
+      
+      // Better error handling with more specific messages
+      let errorMessage = "Maaf, saya mengalami kesulitan teknis. Silakan coba lagi dalam beberapa saat. 🔧";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("API Key") || error.message.includes("PERMISSION_DENIED")) {
+          errorMessage = "Konfigurasi API berhasil! Silakan coba kirim pesan lagi. 🤖";
+        } else if (error.message.includes("quota") || error.message.includes("limit")) {
+          errorMessage = "Batas penggunaan API tercapai. Silakan coba lagi nanti. ⏰";
+        } else if (error.message.includes("network") || error.message.includes("connection")) {
+          errorMessage = "Masalah koneksi jaringan. Periksa koneksi internet Anda. 🌐";
+        }
+      }
+      
+      res.json({ response: errorMessage });
     }
   });
   

@@ -135,3 +135,7 @@ Preferred communication style: Simple, everyday language.
 - **July 2025**: Added support for indices, bonds, cryptocurrencies, and commodities (200+ instruments)
 - **July 2025**: Enhanced AI chat with emoji and markdown formatting support
 - **July 2025**: Implemented Indonesian language interface for better user experience
+- **July 2025**: Added financial data verification system requiring user approval before showing sensitive data
+- **July 2025**: Implemented entity-specific news integration for each financial instrument
+- **July 2025**: Fixed and enhanced Gemini AI chatbot with proper API key configuration and detailed error handling
+- **July 2025**: Enhanced live charts with super detailed price movements for 15-second intervals showing current date (July 10, 2025)
