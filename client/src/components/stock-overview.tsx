@@ -64,6 +64,12 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
   const changeColor = isPositive ? "text-success" : "text-error";
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
+  // Detect asset type based on symbol
+  const isStock = !symbol.includes('-USD') && !symbol.includes('=F') && !symbol.includes('^');
+  const isCrypto = symbol.includes('-USD');
+  const isFuture = symbol.includes('=F');
+  const isIndex = symbol.includes('^');
+
   return (
     <Card className="bg-surface border-border mb-6">
       <CardContent className="p-6">
@@ -96,14 +102,40 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
             <p className="text-muted-foreground text-sm mb-1">Market Cap</p>
             <p className="font-mono font-semibold text-foreground">{stockData.marketCap}</p>
           </div>
-          <div className="bg-background/50 rounded-lg p-4 border border-border">
-            <p className="text-muted-foreground text-sm mb-1">Volume</p>
-            <p className="font-mono font-semibold text-foreground">{stockData.volume}</p>
-          </div>
-          <div className="bg-background/50 rounded-lg p-4 border border-border">
-            <p className="text-muted-foreground text-sm mb-1">P/E Ratio</p>
-            <p className="font-mono font-semibold text-foreground">{stockData.pe?.toFixed(2) || 'N/A'}</p>
-          </div>
+          {/* Show Volume for stocks and crypto */}
+          {(isStock || isCrypto) && (
+            <div className="bg-background/50 rounded-lg p-4 border border-border">
+              <p className="text-muted-foreground text-sm mb-1">Volume</p>
+              <p className="font-mono font-semibold text-foreground">{stockData.volume}</p>
+            </div>
+          )}
+
+          {/* Show P/E Ratio only for stocks */}
+          {isStock && (
+            <div className="bg-background/50 rounded-lg p-4 border border-border">
+              <p className="text-muted-foreground text-sm mb-1">P/E Ratio</p>
+              <p className="font-mono font-semibold text-foreground">{stockData.pe?.toFixed(2) || 'N/A'}</p>
+            </div>
+          )}
+
+          {/* Show alternative metrics for non-stocks */}
+          {isFuture && (
+            <div className="bg-background/50 rounded-lg p-4 border border-border">
+              <p className="text-muted-foreground text-sm mb-1">Contract Value</p>
+              <p className="font-mono font-semibold text-foreground">
+                ${stockData.currentPrice?.toFixed(2) || 'N/A'}
+              </p>
+            </div>
+          )}
+
+          {isIndex && (
+            <div className="bg-background/50 rounded-lg p-4 border border-border">
+              <p className="text-muted-foreground text-sm mb-1">Index Points</p>
+              <p className="font-mono font-semibold text-foreground">
+                {stockData.currentPrice?.toFixed(2) || 'N/A'}
+              </p>
+            </div>
+          )}
           <div className="bg-background/50 rounded-lg p-4 border border-border">
             <p className="text-muted-foreground text-sm mb-1">52W High</p>
             <p className="font-mono font-semibold text-foreground">${stockData.high52w?.toFixed(2)}</p>
