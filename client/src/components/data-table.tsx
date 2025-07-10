@@ -52,8 +52,18 @@ export default function DataTable({ symbol }: DataTableProps) {
     )
   );
 
+  // Calculate ATH and ATL
+  const prices = historicalData.map((d: any) => d.close || d.high || 0);
+  const allTimeHigh = Math.max(...prices);
+  const allTimeLow = Math.min(...prices);
+  const athDate = historicalData.find((d: any) => (d.close || d.high) === allTimeHigh)?.date;
+  const atlDate = historicalData.find((d: any) => (d.close || d.high) === allTimeLow)?.date;
+
   const sortedData = [...filteredData].sort((a: any, b: any) => {
-    if (!sortBy) return 0;
+    if (!sortBy) {
+      // Default sort by date (newest first)
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    }
     
     const aValue = a[sortBy];
     const bValue = b[sortBy];
@@ -88,7 +98,21 @@ export default function DataTable({ symbol }: DataTableProps) {
     <Card className="bg-surface border-border mt-6">
       <CardHeader>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-          <CardTitle className="text-foreground mb-4 md:mb-0">Financial Data</CardTitle>
+          <div>
+            <CardTitle className="text-foreground">Data Historis {symbol}</CardTitle>
+            <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
+              <span className="text-green-600 font-medium">
+                ATH: {formatPrice(allTimeHigh)} 
+                <span className="text-xs ml-1">({athDate ? new Date(athDate).toLocaleDateString('id-ID') : 'N/A'})</span>
+              </span>
+              <span className="text-red-600 font-medium">
+                ATL: {formatPrice(allTimeLow)} 
+                <span className="text-xs ml-1">({atlDate ? new Date(atlDate).toLocaleDateString('id-ID') : 'N/A'})</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4">
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Input

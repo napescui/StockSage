@@ -108,9 +108,7 @@ export default function AssetDetail() {
             
             <LiveChart symbol={currentSymbol} period={currentPeriod} onPeriodChange={setPeriod} />
             
-            <FinancialDataGuard title="Indikator Teknikal">
-              <TechnicalIndicators symbol={currentSymbol} period={currentPeriod} />
-            </FinancialDataGuard>
+            <TechnicalIndicators symbol={currentSymbol} period={currentPeriod} />
             
             <FinancialDataGuard title="Data Historis">
               <DataTable symbol={currentSymbol} />
