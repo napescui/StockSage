@@ -32,7 +32,7 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
               <Skeleton className="h-4 w-24" />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="bg-background/50 rounded-lg p-4 border border-border">
@@ -90,7 +90,7 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
             </div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-background/50 rounded-lg p-4 border border-border">
             <p className="text-muted-foreground text-sm mb-1">Market Cap</p>

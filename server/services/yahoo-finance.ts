@@ -28,8 +28,16 @@ try:
     # Extract key info with proper validation
     current_price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
     market_cap = info.get("marketCap", 0)
-    volume = info.get("volume") or info.get("regularMarketVolume") or 0
+    
+    # Handle volume with multiple fallbacks
+    volume = info.get("volume") or info.get("regularMarketVolume") or info.get("averageVolume") or info.get("averageVolume10days") or 0
+    
+    # Handle P/E ratio with proper validation
     pe = info.get("trailingPE") or info.get("forwardPE") or 0
+    # Check if P/E is valid (not None, not 0, not negative, not too large)
+    if pe is None or pe <= 0 or pe > 1000:
+        pe = 0
+    
     high52w = info.get("fiftyTwoWeekHigh", 0)
     low52w = info.get("fiftyTwoWeekLow", 0)
     change = info.get("regularMarketChange", 0)
@@ -39,17 +47,34 @@ try:
     if not current_price and not market_cap and not volume:
         raise Exception(f"Stock symbol {symbol} not found or invalid")
     
+    # Format and validate all numeric values
+    def safe_float(value, default=0):
+        try:
+            if value is None or value == "N/A" or str(value).lower() == "nan":
+                return default
+            return float(value)
+        except (ValueError, TypeError):
+            return default
+    
+    def safe_int(value, default=0):
+        try:
+            if value is None or value == "N/A" or str(value).lower() == "nan":
+                return default
+            return int(value)
+        except (ValueError, TypeError):
+            return default
+    
     result = {
         "symbol": info.get("symbol", "${symbol}"),
         "name": info.get("longName") or info.get("shortName") or "${symbol}",
-        "currentPrice": float(current_price) if current_price else 0,
-        "marketCap": int(market_cap) if market_cap else 0,
-        "volume": int(volume) if volume else 0,
-        "pe": float(pe) if pe and pe != "N/A" else 0,
-        "high52w": float(high52w) if high52w else 0,
-        "low52w": float(low52w) if low52w else 0,
-        "change": float(change) if change else 0,
-        "changePercent": float(change_percent) if change_percent else 0,
+        "currentPrice": safe_float(current_price),
+        "marketCap": safe_int(market_cap),
+        "volume": safe_int(volume),
+        "pe": safe_float(pe),
+        "high52w": safe_float(high52w),
+        "low52w": safe_float(low52w),
+        "change": safe_float(change),
+        "changePercent": safe_float(change_percent),
         "history": history_data,
         "isValid": bool(current_price or market_cap or volume)
     }
