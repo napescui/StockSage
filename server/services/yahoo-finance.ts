@@ -27,10 +27,30 @@ try:
     
     # Extract key info with proper validation
     current_price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
-    market_cap = info.get("marketCap", 0)
     
-    # Handle volume with multiple fallbacks
-    volume = info.get("volume") or info.get("regularMarketVolume") or info.get("averageVolume") or info.get("averageVolume10days") or 0
+    # Handle market cap with multiple fallbacks and proper formatting
+    market_cap_raw = info.get("marketCap") or info.get("sharesOutstanding", 0) * current_price or 0
+    if market_cap_raw >= 1e12:
+        market_cap = f"${market_cap_raw / 1e12:.2f}T"
+    elif market_cap_raw >= 1e9:
+        market_cap = f"${market_cap_raw / 1e9:.2f}B"
+    elif market_cap_raw >= 1e6:
+        market_cap = f"${market_cap_raw / 1e6:.2f}M"
+    elif market_cap_raw > 0:
+        market_cap = f"${market_cap_raw:,.0f}"
+    else:
+        market_cap = "N/A"
+    
+    # Handle volume with multiple fallbacks and proper formatting
+    volume_raw = info.get("volume") or info.get("regularMarketVolume") or info.get("averageVolume") or info.get("averageVolume10days") or 0
+    if volume_raw >= 1e6:
+        volume = f"{volume_raw / 1e6:.1f}M"
+    elif volume_raw >= 1e3:
+        volume = f"{volume_raw / 1e3:.1f}K"
+    elif volume_raw > 0:
+        volume = f"{volume_raw:,}"
+    else:
+        volume = "N/A"
     
     # Handle P/E ratio with proper validation
     pe = info.get("trailingPE") or info.get("forwardPE") or 0
@@ -68,15 +88,15 @@ try:
         "symbol": info.get("symbol", "${symbol}"),
         "name": info.get("longName") or info.get("shortName") or "${symbol}",
         "currentPrice": safe_float(current_price),
-        "marketCap": safe_int(market_cap),
-        "volume": safe_int(volume),
+        "marketCap": market_cap,
+        "volume": volume,
         "pe": safe_float(pe),
         "high52w": safe_float(high52w),
         "low52w": safe_float(low52w),
         "change": safe_float(change),
         "changePercent": safe_float(change_percent),
         "history": history_data,
-        "isValid": bool(current_price or market_cap or volume)
+        "isValid": bool(current_price or market_cap_raw or volume_raw)
     }
     
     print(json.dumps(result))
@@ -118,27 +138,7 @@ except Exception as e:
   });
 }
 
-export async function formatMarketCap(marketCap: number): Promise<string> {
-  if (marketCap >= 1e12) {
-    return `$${(marketCap / 1e12).toFixed(2)}T`;
-  } else if (marketCap >= 1e9) {
-    return `$${(marketCap / 1e9).toFixed(2)}B`;
-  } else if (marketCap >= 1e6) {
-    return `$${(marketCap / 1e6).toFixed(2)}M`;
-  } else {
-    return `$${marketCap.toFixed(2)}`;
-  }
-}
 
-export async function formatVolume(volume: number): Promise<string> {
-  if (volume >= 1e6) {
-    return `${(volume / 1e6).toFixed(1)}M`;
-  } else if (volume >= 1e3) {
-    return `${(volume / 1e3).toFixed(1)}K`;
-  } else {
-    return volume.toString();
-  }
-}
 
 export async function suggestSimilarStocks(symbol: string): Promise<string[]> {
   const commonStocks = [
