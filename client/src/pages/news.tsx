@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
-import { Link } from "wouter";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, TrendingUp, Filter, Search, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Filter, Calendar, TrendingUp, TrendingDown, Minus, ChevronUp, ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Link } from "wouter";
+import { Newspaper } from "lucide-react";
 
 interface NewsItem {
   id: string;
@@ -23,20 +24,18 @@ interface NewsItem {
 }
 
 export default function News() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("latest");
-  const [displayedNews, setDisplayedNews] = useState<NewsItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const itemsPerPage = 20;
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('latest');
+  const [displayedCount, setDisplayedCount] = useState(50);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['/api/news', selectedCategory, sortBy],
   });
 
   // Generate comprehensive news data from trusted sources only
-  const generateNewsData = (): NewsItem[] => {
+  const allNews = useMemo(() => {
     const sources = ["Reuters", "Bloomberg", "Yahoo Finance"]; // Only trusted sources
     const categories = ["market", "policy", "crypto", "commodities", "earnings", "analysis", "global", "tech"];
     const sentiments: ("positive" | "negative" | "neutral")[] = ["positive", "negative", "neutral"];
@@ -98,95 +97,93 @@ export default function News() {
     }
     
     return mockNews;
-  };
+  }, []);
 
-  const allNews = generateNewsData();
+  // Filter and sort news
+  const processedNews = useMemo(() => {
+    const filteredNews = allNews.filter(item => {
+      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.source.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
 
-  const filteredNews = allNews.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.summary.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+    const sortedNews = [...filteredNews].sort((a, b) => {
+      if (sortBy === 'latest') {
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      } else if (sortBy === 'oldest') {
+        return new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime();
+      } else if (sortBy === 'source') {
+        return a.source.localeCompare(b.source);
+      } else if (sortBy === 'sentiment') {
+        const sentimentOrder = { positive: 3, neutral: 2, negative: 1 };
+        return sentimentOrder[b.sentiment] - sentimentOrder[a.sentiment];
+      }
+      return 0;
+    });
 
-  const sortedNews = [...filteredNews].sort((a, b) => {
-    if (sortBy === "latest") {
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-    } else if (sortBy === "popular") {
-      return b.relatedSymbols.length - a.relatedSymbols.length;
-    }
-    return 0;
-  });
+    return sortedNews;
+  }, [allNews, searchTerm, selectedCategory, sortBy]);
 
-  // Lazy loading implementation
-  const loadMoreNews = useCallback(() => {
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const newItems = sortedNews.slice(startIndex, endIndex);
-    
-    if (page === 1) {
-      setDisplayedNews(newItems);
-    } else {
-      setDisplayedNews(prev => [...prev, ...newItems]);
-    }
-  }, [page, itemsPerPage]);
-
-  // Update displayed news when filters change
+  // Reset displayed count when filters change
   useEffect(() => {
-    if (sortedNews.length > 0) {
-      const newItems = sortedNews.slice(0, itemsPerPage);
-      setDisplayedNews(newItems);
-    }
-  }, [sortedNews, itemsPerPage]);
-
-  useEffect(() => {
-    setPage(1);
-    setDisplayedNews([]);
+    setDisplayedCount(50);
   }, [searchTerm, selectedCategory, sortBy]);
 
-  // Infinite scroll handler
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
-        if (displayedNews.length < sortedNews.length) {
-          setPage(prev => prev + 1);
-        }
-      }
-    };
+  // Get currently displayed news
+  const displayedNews = useMemo(() => {
+    return processedNews.slice(0, displayedCount);
+  }, [processedNews, displayedCount]);
 
+  // Handle scroll to load more
+  const handleScroll = () => {
+    if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+      if (displayedCount < processedNews.length) {
+        setDisplayedCount(prev => prev + 50);
+      }
+    }
+  };
+
+  // Add scroll event listener
+  useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [displayedNews.length, sortedNews.length]);
+  }, [displayedCount, processedNews.length]);
+
+  // Handle load more button
+  const handleLoadMore = () => {
+    setDisplayedCount(prev => prev + 50);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) {
+      return 'Baru saja';
+    } else if (diffInHours < 24) {
+      return `${diffInHours} jam yang lalu`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} hari yang lalu`;
+    }
+  };
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return 'bg-green-500';
-      case 'negative': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'positive': return 'bg-green-100 text-green-800 border-green-200';
+      case 'negative': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return '📈';
-      case 'negative': return '📉';
-      default: return '📊';
-    }
-  };
-
-  const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    if (diffHours > 0) {
-      return `${diffHours} jam yang lalu`;
-    } else if (diffMinutes > 0) {
-      return `${diffMinutes} menit yang lalu`;
-    } else {
-      return 'Baru saja';
+      case 'positive': return <TrendingUp className="w-3 h-3" />;
+      case 'negative': return <TrendingDown className="w-3 h-3" />;
+      default: return <Minus className="w-3 h-3" />;
     }
   };
 
@@ -194,176 +191,214 @@ export default function News() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Kembali
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">📰 StockAnalyzer News Pro</h1>
-              <p className="text-muted-foreground">Berita terbaru pasar modal dan investasi</p>
-            </div>
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <Button asChild variant="outline" className="flex items-center gap-2">
+              <Link href="/">
+                <TrendingUp className="w-4 h-4" />
+                StockAnalyzer Pro
+              </Link>
+            </Button>
+            <Button className="flex items-center gap-2">
+              <Newspaper className="w-4 h-4" />
+              StockAnalyzer News Pro
+            </Button>
+          </div>
+          <h1 className="text-4xl font-bold text-foreground mb-2">
+            Financial News Center
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Berita keuangan terkini dari Reuters, Bloomberg, dan Yahoo Finance
+          </p>
+        </div>
+
+        {/* Search */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Cari berita, sumber, atau topik..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-background border-border text-foreground"
+            />
           </div>
         </div>
 
         {/* Filters */}
-        <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen} className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cari berita..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+        <div className="max-w-4xl mx-auto mb-8">
+          <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
             <CollapsibleTrigger asChild>
-              <Button variant="outline" className="ml-4">
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-                {isFilterOpen ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
+              <Button variant="outline" className="flex items-center gap-2 mx-auto">
+                <Filter className="w-4 h-4" />
+                Filter & Sorting
+                {isFiltersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </Button>
             </CollapsibleTrigger>
-          </div>
-          
-          <CollapsibleContent className="pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Kategori</SelectItem>
-                  <SelectItem value="market">Pasar</SelectItem>
-                  <SelectItem value="policy">Kebijakan</SelectItem>
-                  <SelectItem value="crypto">Kripto</SelectItem>
-                  <SelectItem value="commodities">Komoditas</SelectItem>
-                  <SelectItem value="earnings">Laporan Keuangan</SelectItem>
-                  <SelectItem value="analysis">Analisis</SelectItem>
-                  <SelectItem value="global">Global</SelectItem>
-                  <SelectItem value="tech">Teknologi</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Urutkan" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="latest">Terbaru</SelectItem>
-                  <SelectItem value="popular">Terpopuler</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        {/* News Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {isLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="bg-surface border-border">
-                <CardHeader>
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3" />
+            <CollapsibleContent className="space-y-4 mt-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Kategori</label>
+                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih kategori" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Semua Kategori</SelectItem>
+                          <SelectItem value="market">Pasar</SelectItem>
+                          <SelectItem value="policy">Kebijakan</SelectItem>
+                          <SelectItem value="crypto">Cryptocurrency</SelectItem>
+                          <SelectItem value="commodities">Komoditas</SelectItem>
+                          <SelectItem value="earnings">Laporan Keuangan</SelectItem>
+                          <SelectItem value="analysis">Analisis</SelectItem>
+                          <SelectItem value="global">Global</SelectItem>
+                          <SelectItem value="tech">Teknologi</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Urutan</label>
+                      <Select value={sortBy} onValueChange={setSortBy}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Urutkan berdasarkan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="latest">Terbaru</SelectItem>
+                          <SelectItem value="oldest">Terlama</SelectItem>
+                          <SelectItem value="source">Sumber</SelectItem>
+                          <SelectItem value="sentiment">Sentimen</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            ))
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+
+        {/* News Stats */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Menampilkan {displayedNews.length} dari {processedNews.length} berita</span>
+            <span>Total: {allNews.length} berita tersedia</span>
+          </div>
+        </div>
+
+        {/* News List */}
+        <div className="max-w-4xl mx-auto space-y-6">
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Memuat berita...</p>
+            </div>
           ) : (
-            displayedNews.map((item) => (
-              <Card key={item.id} className="bg-surface border-border hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg leading-tight mb-2">{item.title}</CardTitle>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(item.publishedAt)}</span>
-                        <span>•</span>
-                        <span>{item.source}</span>
+            <>
+              {displayedNews.map((item) => (
+                <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-semibold text-foreground line-clamp-2">
+                          {item.title}
+                        </CardTitle>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {item.source}
+                          </Badge>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs flex items-center gap-1 ${getSentimentColor(item.sentiment)}`}
+                          >
+                            {getSentimentIcon(item.sentiment)}
+                            {item.sentiment}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(item.publishedAt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`text-white ${getSentimentColor(item.sentiment)}`}
-                      >
-                        {getSentimentIcon(item.sentiment)}
-                      </Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-4 line-clamp-3">
+                      {item.summary}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {item.category}
+                        </Badge>
+                        {item.relatedSymbols.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground">Terkait:</span>
+                            {item.relatedSymbols.slice(0, 3).map((symbol, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">
+                                {symbol}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <Button asChild variant="outline" size="sm">
+                        <a href={item.url} target="_blank" rel="noopener noreferrer">
+                          Baca Selengkapnya
+                        </a>
+                      </Button>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{item.summary}</p>
-                  
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Terkait:</span>
-                      {item.relatedSymbols.slice(0, 3).map((symbol) => (
-                        <Link key={symbol} href={`/asset/${symbol}`}>
-                          <Badge variant="secondary" className="text-xs hover:bg-primary/20">
-                            {symbol}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {item.category}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      asChild
-                    >
-                      <a href={item.url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Baca Selengkapnya
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Load More Button */}
+              {displayedCount < processedNews.length && (
+                <div className="text-center py-8">
+                  <Button onClick={handleLoadMore} size="lg" className="bg-primary hover:bg-primary/90">
+                    Muat Lebih Banyak ({processedNews.length - displayedCount} berita tersisa)
+                  </Button>
+                </div>
+              )}
+
+              {/* End of Results */}
+              {displayedCount >= processedNews.length && processedNews.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">
+                    Semua berita telah dimuat ({processedNews.length} total)
+                  </p>
+                </div>
+              )}
+
+              {/* No Results */}
+              {processedNews.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    Tidak ada berita yang sesuai dengan filter Anda
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedCategory('all');
+                      setSortBy('latest');
+                    }}
+                    variant="outline"
+                    className="mt-4"
+                  >
+                    Reset Filter
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* Load More Indicator */}
-        {displayedNews.length < sortedNews.length && (
-          <div className="text-center py-8">
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
-              <span>Memuat berita lainnya...</span>
-            </div>
-          </div>
-        )}
-
-        {/* Results Info */}
-        <div className="text-center py-4 text-sm text-muted-foreground">
-          Menampilkan {displayedNews.length} dari {sortedNews.length} berita
+        {/* Footer */}
+        <div className="text-center mt-16 text-muted-foreground">
+          <p>Sumber berita: Reuters, Bloomberg, Yahoo Finance</p>
         </div>
-
-        {/* Empty State */}
-        {!isLoading && displayedNews.length === 0 && (
-          <Card className="bg-surface border-border text-center py-12">
-            <CardContent>
-              <div className="text-4xl mb-4">📰</div>
-              <h3 className="text-lg font-medium mb-2">Tidak ada berita ditemukan</h3>
-              <p className="text-muted-foreground">Coba ubah filter pencarian atau periksa lagi nanti</p>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
