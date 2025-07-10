@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ 
-  apiKey: process.env.GEMINI_API_KEY || "" 
+  apiKey: process.env.GEMINI_API_KEY || "AIzaSyBreoZhTVNwNNDqviHS__RDJPRpCP-pvlc" 
 });
 
 export async function analyzeStock(symbol: string, stockInfo: any, message: string): Promise<string> {

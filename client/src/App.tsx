@@ -6,12 +6,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CurrencyProvider } from "@/contexts/currency-context";
 import Home from "@/pages/home";
 import AssetDetail from "@/pages/asset-detail";
+import News from "@/pages/news";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/news" component={News} />
       <Route path="/asset/:symbol" component={AssetDetail} />
       <Route component={NotFound} />
     </Switch>

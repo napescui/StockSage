@@ -99,15 +99,7 @@ export default function AssetDetail() {
         {/* Real-Time Dashboard */}
         <RealTimeDashboard symbol={currentSymbol} />
 
-        {/* Controls */}
-        <div className="mb-6">
-          <StockInput
-            onSymbolChange={setCurrentSymbol}
-            onPeriodChange={setPeriod}
-            currentSymbol={currentSymbol}
-            currentPeriod={currentPeriod}
-          />
-        </div>
+
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

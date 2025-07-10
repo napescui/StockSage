@@ -9,7 +9,7 @@ interface FinancialDataGuardProps {
 }
 
 export default function FinancialDataGuard({ children, title = "Data Finansial" }: FinancialDataGuardProps) {
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(true); // Auto-show financial data
 
   if (isVerified) {
     return <>{children}</>;
