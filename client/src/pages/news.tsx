@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, TrendingUp, Filter, Search } from "lucide-react";
+import { ArrowLeft, Clock, TrendingUp, Filter, Search, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface NewsItem {
   id: string;
@@ -25,71 +26,83 @@ export default function News() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("latest");
+  const [displayedNews, setDisplayedNews] = useState<NewsItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const itemsPerPage = 20;
 
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['/api/news', selectedCategory, sortBy],
   });
 
-  // Mock data for demonstration
-  const mockNews: NewsItem[] = [
-    {
-      id: "1",
-      title: "Stock Market Hits New Record High as Tech Stocks Surge",
-      summary: "The S&P 500 reached a new all-time high today, driven by strong performance in technology stocks. Apple, Microsoft, and NVIDIA led the gains.",
-      url: "#",
-      publishedAt: "2025-07-10T10:30:00Z",
-      source: "Financial Times",
-      category: "market",
-      sentiment: "positive",
-      relatedSymbols: ["AAPL", "MSFT", "NVDA"]
-    },
-    {
-      id: "2",
-      title: "Federal Reserve Hints at Potential Interest Rate Changes",
-      summary: "In a recent statement, the Federal Reserve indicated possible adjustments to interest rates in the coming months, citing inflation concerns.",
-      url: "#",
-      publishedAt: "2025-07-10T09:15:00Z",
-      source: "Reuters",
-      category: "policy",
-      sentiment: "neutral",
-      relatedSymbols: ["SPY", "QQQ"]
-    },
-    {
-      id: "3",
-      title: "Bitcoin Surges Past $100,000 as Institutional Adoption Grows",
-      summary: "Bitcoin reached a new milestone as major institutions continue to adopt cryptocurrency, with Tesla and MicroStrategy leading the charge.",
-      url: "#",
-      publishedAt: "2025-07-10T08:45:00Z",
-      source: "CoinDesk",
-      category: "crypto",
-      sentiment: "positive",
-      relatedSymbols: ["BTC-USD", "ETH-USD"]
-    },
-    {
-      id: "4",
-      title: "Oil Prices Decline Amid Global Economic Uncertainty",
-      summary: "Crude oil prices fell sharply today as concerns about global economic growth weigh on energy markets.",
-      url: "#",
-      publishedAt: "2025-07-10T07:30:00Z",
-      source: "Bloomberg",
-      category: "commodities",
-      sentiment: "negative",
-      relatedSymbols: ["CL=F", "XOM", "CVX"]
-    },
-    {
-      id: "5",
-      title: "Tesla Reports Strong Q2 Earnings, Stock Jumps 8%",
-      summary: "Tesla exceeded expectations with strong Q2 earnings, reporting record deliveries and improved margins.",
-      url: "#",
-      publishedAt: "2025-07-10T06:00:00Z",
-      source: "CNBC",
-      category: "earnings",
-      sentiment: "positive",
-      relatedSymbols: ["TSLA"]
-    }
-  ];
+  // Generate comprehensive news data
+  const generateNewsData = (): NewsItem[] => {
+    const sources = ["Reuters", "Bloomberg", "CNBC", "Financial Times", "Wall Street Journal", "Yahoo Finance", "MarketWatch", "Seeking Alpha", "CoinDesk", "The Motley Fool"];
+    const categories = ["market", "policy", "crypto", "commodities", "earnings", "analysis", "global", "tech"];
+    const sentiments: ("positive" | "negative" | "neutral")[] = ["positive", "negative", "neutral"];
+    const symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "BTC-USD", "ETH-USD", "SPY", "QQQ", "XOM", "CVX", "GOLD", "SILVER"];
+    
+    const newsTemplates = [
+      {
+        title: "Stock Market Reaches New Milestone as Tech Sector Leads Rally",
+        summary: "Major technology stocks continue to drive market gains with strong investor confidence and robust quarterly results.",
+        category: "market",
+        sentiment: "positive" as const
+      },
+      {
+        title: "Federal Reserve Announces Policy Changes Affecting Market Direction",
+        summary: "The central bank's latest monetary policy decisions are expected to have significant implications for investors and market trends.",
+        category: "policy", 
+        sentiment: "neutral" as const
+      },
+      {
+        title: "Cryptocurrency Market Experiences Significant Volatility",
+        summary: "Digital assets show mixed performance as institutional adoption continues alongside regulatory developments.",
+        category: "crypto",
+        sentiment: "neutral" as const
+      },
+      {
+        title: "Energy Sector Faces Headwinds Amid Global Economic Shifts",
+        summary: "Oil and gas companies navigate challenging market conditions while adapting to evolving energy demands.",
+        category: "commodities",
+        sentiment: "negative" as const
+      },
+      {
+        title: "Earnings Season Delivers Mixed Results Across Industries",
+        summary: "Companies report quarterly results with varying performance metrics reflecting diverse market conditions.",
+        category: "earnings",
+        sentiment: "neutral" as const
+      }
+    ];
 
-  const filteredNews = mockNews.filter(item => {
+    const mockNews: NewsItem[] = [];
+    
+    // Generate 2000+ news items
+    for (let i = 0; i < 2500; i++) {
+      const template = newsTemplates[i % newsTemplates.length];
+      const source = sources[i % sources.length];
+      const randomSymbols = symbols.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 3) + 1);
+      const hoursAgo = Math.floor(Math.random() * 72) + 1; // Last 3 days
+      
+      mockNews.push({
+        id: `news-${i + 1}`,
+        title: `${template.title} - ${source} Analysis ${i + 1}`,
+        summary: `${template.summary} This comprehensive analysis covers market trends, investor sentiment, and key financial indicators affecting major market participants.`,
+        url: `https://finance.yahoo.com/news/article-${i + 1}`,
+        publishedAt: new Date(Date.now() - hoursAgo * 60 * 60 * 1000).toISOString(),
+        source: source,
+        category: template.category,
+        sentiment: template.sentiment,
+        relatedSymbols: randomSymbols
+      });
+    }
+    
+    return mockNews;
+  };
+
+  const allNews = generateNewsData();
+
+  const filteredNews = allNews.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.summary.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
@@ -99,9 +112,47 @@ export default function News() {
   const sortedNews = [...filteredNews].sort((a, b) => {
     if (sortBy === "latest") {
       return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+    } else if (sortBy === "popular") {
+      return b.relatedSymbols.length - a.relatedSymbols.length;
     }
     return 0;
   });
+
+  // Lazy loading implementation
+  const loadMoreNews = useCallback(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const newItems = sortedNews.slice(startIndex, endIndex);
+    
+    if (page === 1) {
+      setDisplayedNews(newItems);
+    } else {
+      setDisplayedNews(prev => [...prev, ...newItems]);
+    }
+  }, [sortedNews, page]);
+
+  useEffect(() => {
+    setPage(1);
+    setDisplayedNews([]);
+  }, [searchTerm, selectedCategory, sortBy]);
+
+  useEffect(() => {
+    loadMoreNews();
+  }, [loadMoreNews, page]);
+
+  // Infinite scroll handler
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        if (displayedNews.length < sortedNews.length) {
+          setPage(prev => prev + 1);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [displayedNews.length, sortedNews.length]);
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
@@ -155,41 +206,57 @@ export default function News() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari berita..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
+        <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen} className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari berita..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="ml-4">
+                <Filter className="w-4 h-4 mr-2" />
+                Filter
+                {isFilterOpen ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
+              </Button>
+            </CollapsibleTrigger>
           </div>
           
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Kategori" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Kategori</SelectItem>
-              <SelectItem value="market">Pasar</SelectItem>
-              <SelectItem value="policy">Kebijakan</SelectItem>
-              <SelectItem value="crypto">Kripto</SelectItem>
-              <SelectItem value="commodities">Komoditas</SelectItem>
-              <SelectItem value="earnings">Laporan Keuangan</SelectItem>
-            </SelectContent>
-          </Select>
+          <CollapsibleContent className="pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
+                  <SelectItem value="market">Pasar</SelectItem>
+                  <SelectItem value="policy">Kebijakan</SelectItem>
+                  <SelectItem value="crypto">Kripto</SelectItem>
+                  <SelectItem value="commodities">Komoditas</SelectItem>
+                  <SelectItem value="earnings">Laporan Keuangan</SelectItem>
+                  <SelectItem value="analysis">Analisis</SelectItem>
+                  <SelectItem value="global">Global</SelectItem>
+                  <SelectItem value="tech">Teknologi</SelectItem>
+                </SelectContent>
+              </Select>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger>
-              <SelectValue placeholder="Urutkan" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="latest">Terbaru</SelectItem>
-              <SelectItem value="popular">Terpopuler</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Urutkan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="latest">Terbaru</SelectItem>
+                  <SelectItem value="popular">Terpopuler</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -208,8 +275,8 @@ export default function News() {
               </Card>
             ))
           ) : (
-            sortedNews.map((item) => (
-              <Card key={item.id} className="bg-surface border-border hover:shadow-lg transition-shadow cursor-pointer">
+            displayedNews.map((item) => (
+              <Card key={item.id} className="bg-surface border-border hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -234,7 +301,7 @@ export default function News() {
                 <CardContent>
                   <p className="text-muted-foreground mb-4">{item.summary}</p>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">Terkait:</span>
                       {item.relatedSymbols.slice(0, 3).map((symbol) => (
@@ -249,14 +316,42 @@ export default function News() {
                       {item.category}
                     </Badge>
                   </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      asChild
+                    >
+                      <a href={item.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Baca Selengkapnya
+                      </a>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))
           )}
         </div>
 
+        {/* Load More Indicator */}
+        {displayedNews.length < sortedNews.length && (
+          <div className="text-center py-8">
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+              <span>Memuat berita lainnya...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Results Info */}
+        <div className="text-center py-4 text-sm text-muted-foreground">
+          Menampilkan {displayedNews.length} dari {sortedNews.length} berita
+        </div>
+
         {/* Empty State */}
-        {!isLoading && sortedNews.length === 0 && (
+        {!isLoading && displayedNews.length === 0 && (
           <Card className="bg-surface border-border text-center py-12">
             <CardContent>
               <div className="text-4xl mb-4">📰</div>

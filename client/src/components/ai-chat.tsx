@@ -79,23 +79,24 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
   };
 
   return (
-    <Card className="bg-surface border-border h-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-foreground">AI Assistant</CardTitle>
-          <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
+    <Card className="bg-surface border-border">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <Bot className="w-5 h-5 text-primary" />
+          <CardTitle className="text-base">AI Assistant</CardTitle>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
-        <ScrollArea className="h-64 mb-4 scrollbar-thin">
-          <div className="space-y-4">
+      <CardContent className="p-4">
+        <ScrollArea className="h-48 mb-3">
+          <div className="space-y-3">
             {/* Welcome message */}
             <div className="flex items-start space-x-2">
-              <div className="w-6 h-6 bg-chart-2 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                 <Bot className="w-3 h-3 text-white" />
               </div>
-              <div className="bg-background/50 rounded-lg p-3 max-w-xs">
-                <MarkdownText text={`Hello! 👋 I'm your AI assistant. Ask me anything about **${currentSymbol || 'stocks'}** or market analysis! 📈`} />
+              <div className="bg-muted rounded-lg p-2 text-sm max-w-[200px]">
+                <MarkdownText text={`Halo! Tanya saya tentang **${currentSymbol || 'saham'}** 📊`} />
               </div>
             </div>
 
@@ -104,20 +105,20 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
               <div key={index} className="space-y-2">
                 {/* User message */}
                 <div className="flex items-start space-x-2 justify-end">
-                  <div className="bg-primary/20 rounded-lg p-3 max-w-xs">
-                    <p className="text-sm text-foreground">{chat.message}</p>
+                  <div className="bg-primary rounded-lg p-2 max-w-[180px] text-right">
+                    <p className="text-sm text-white">{chat.message}</p>
                   </div>
-                  <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-3 h-3 text-muted-foreground" />
+                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <User className="w-3 h-3 text-white" />
                   </div>
                 </div>
 
                 {/* AI response */}
                 <div className="flex items-start space-x-2">
-                  <div className="w-6 h-6 bg-chart-2 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-5 h-5 bg-muted-foreground rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <Bot className="w-3 h-3 text-white" />
                   </div>
-                  <div className="bg-background/50 rounded-lg p-3 max-w-xs">
+                  <div className="bg-muted rounded-lg p-2 max-w-[180px]">
                     <MarkdownText text={chat.response} />
                   </div>
                 </div>
@@ -127,14 +128,14 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
             {/* Loading state */}
             {chatMutation.isPending && (
               <div className="flex items-start space-x-2">
-                <div className="w-6 h-6 bg-chart-2 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-5 h-5 bg-muted-foreground rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <Bot className="w-3 h-3 text-white" />
                 </div>
-                <div className="bg-background/50 rounded-lg p-3 max-w-xs">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <div className="bg-muted rounded-lg p-2 max-w-[180px]">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
                 </div>
               </div>
@@ -142,33 +143,29 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
           </div>
         </ScrollArea>
 
-        <div className="space-y-2">
-          <Textarea
-            placeholder="Tanyakan tentang analisis pasar, tren, atau strategi investasi..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyPress}
-            className="bg-background border-border text-foreground min-h-[80px] resize-none"
-            disabled={chatMutation.isPending}
-          />
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">
-              {message.length}/2000 karakter
-            </span>
-            <Button
-              onClick={handleSendMessage}
-              disabled={chatMutation.isPending || !message.trim() || message.length > 2000}
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              {chatMutation.isPending ? (
-                <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
-              ) : (
-                <Send className="w-4 h-4 mr-2" />
-              )}
-              {chatMutation.isPending ? "Mengirim..." : "Kirim"}
-            </Button>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Input
+              placeholder="Tanyakan tentang analisis..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              className="text-sm"
+              disabled={chatMutation.isPending}
+            />
           </div>
+          <Button
+            onClick={handleSendMessage}
+            disabled={chatMutation.isPending || !message.trim()}
+            size="sm"
+            className="px-3"
+          >
+            {chatMutation.isPending ? (
+              <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Send className="w-3 h-3" />
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>
