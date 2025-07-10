@@ -64,7 +64,6 @@ export const FINANCIAL_INSTRUMENTS: FinancialInstrument[] = [
   { symbol: 'BLK', name: 'BlackRock Inc.', category: 'stocks', description: 'Investment management' },
   
   // Additional Tech Stocks
-  { symbol: 'CRM', name: 'Salesforce Inc.', category: 'stocks', description: 'Cloud-based software' },
   { symbol: 'ORCL', name: 'Oracle Corporation', category: 'stocks', description: 'Database software' },
   { symbol: 'AMD', name: 'Advanced Micro Devices', category: 'stocks', description: 'Semiconductor company' },
   { symbol: 'SHOP', name: 'Shopify Inc.', category: 'stocks', description: 'E-commerce platform' },
@@ -93,9 +92,6 @@ export const FINANCIAL_INSTRUMENTS: FinancialInstrument[] = [
   { symbol: 'COF', name: 'Capital One Financial Corp', category: 'stocks', description: 'Banking and credit services' },
   
   // Healthcare & Pharma (100+ more) - removing duplicates
-  { symbol: 'TMO', name: 'Thermo Fisher Scientific Inc', category: 'stocks', description: 'Life sciences and laboratory equipment' },
-  { symbol: 'DHR', name: 'Danaher Corporation', category: 'stocks', description: 'Life sciences and diagnostics' },
-  { symbol: 'ABBV', name: 'AbbVie Inc.', category: 'stocks', description: 'Biopharmaceutical' },
   { symbol: 'MRK', name: 'Merck & Co Inc', category: 'stocks', description: 'Pharmaceutical company' },
   { symbol: 'BMY', name: 'Bristol-Myers Squibb Co', category: 'stocks', description: 'Pharmaceutical company' },
   { symbol: 'AMGN', name: 'Amgen Inc.', category: 'stocks', description: 'Biotechnology' },
@@ -116,26 +112,13 @@ export const FINANCIAL_INSTRUMENTS: FinancialInstrument[] = [
   { symbol: 'HAL', name: 'Halliburton Company', category: 'stocks', description: 'Oilfield services' },
   
   // Consumer Goods (100+ more)
-  { symbol: 'PG', name: 'Procter & Gamble Co', category: 'stocks', description: 'Consumer goods' },
-  { symbol: 'KO', name: 'Coca-Cola Company', category: 'stocks', description: 'Beverages' },
-  { symbol: 'PEP', name: 'PepsiCo Inc', category: 'stocks', description: 'Food and beverages' },
-  { symbol: 'WMT', name: 'Walmart Inc', category: 'stocks', description: 'Retail' },
-  { symbol: 'COST', name: 'Costco Wholesale Corp', category: 'stocks', description: 'Warehouse retail' },
   { symbol: 'TGT', name: 'Target Corporation', category: 'stocks', description: 'Retail' },
-  { symbol: 'HD', name: 'Home Depot Inc', category: 'stocks', description: 'Home improvement retail' },
-  { symbol: 'LOW', name: 'Lowe\'s Companies Inc', category: 'stocks', description: 'Home improvement retail' },
-  { symbol: 'MCD', name: 'McDonald\'s Corporation', category: 'stocks', description: 'Fast food' },
-  { symbol: 'SBUX', name: 'Starbucks Corporation', category: 'stocks', description: 'Coffee shops' },
   
   // Industrial & Manufacturing (100+ more)
   { symbol: 'BA', name: 'Boeing Company', category: 'stocks', description: 'Aerospace and defense' },
-  { symbol: 'CAT', name: 'Caterpillar Inc', category: 'stocks', description: 'Construction machinery' },
   { symbol: 'DE', name: 'Deere & Company', category: 'stocks', description: 'Agricultural machinery' },
   { symbol: 'MMM', name: '3M Company', category: 'stocks', description: 'Industrial conglomerate' },
-  { symbol: 'HON', name: 'Honeywell International', category: 'stocks', description: 'Industrial conglomerate' },
-  { symbol: 'UPS', name: 'United Parcel Service', category: 'stocks', description: 'Package delivery' },
   { symbol: 'FDX', name: 'FedEx Corporation', category: 'stocks', description: 'Package delivery' },
-  { symbol: 'LMT', name: 'Lockheed Martin Corp', category: 'stocks', description: 'Aerospace and defense' },
   { symbol: 'RTX', name: 'Raytheon Technologies', category: 'stocks', description: 'Aerospace and defense' },
   { symbol: 'GE', name: 'General Electric Company', category: 'stocks', description: 'Industrial conglomerate' },
   
