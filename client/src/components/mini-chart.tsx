@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface MiniChartProps {
   symbol: string;
@@ -9,6 +10,7 @@ interface MiniChartProps {
 
 export default function MiniChart({ symbol, className = "" }: MiniChartProps) {
   const plotRef = useRef<HTMLDivElement>(null);
+  const { selectedCurrency, convertPrice, formatCurrency } = useCurrency();
   
   const { data: stockData, isLoading } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=1d`],
@@ -69,8 +71,8 @@ export default function MiniChart({ symbol, className = "" }: MiniChartProps) {
     );
   }
 
-  const currentPrice = stockData.currentPrice || 0;
-  const change = stockData.change || 0;
+  const currentPrice = convertPrice(stockData.currentPrice || 0, 'USD');
+  const change = convertPrice(stockData.change || 0, 'USD');
   const changePercent = stockData.changePercent || 0;
   const isPositive = change >= 0;
 
@@ -78,7 +80,7 @@ export default function MiniChart({ symbol, className = "" }: MiniChartProps) {
     <div className={`space-y-2 ${className}`}>
       <div className="h-12 w-full" ref={plotRef} />
       <div className="flex items-center justify-between text-xs">
-        <span className="font-medium">${currentPrice.toFixed(2)}</span>
+        <span className="font-medium">{formatCurrency(currentPrice)}</span>
         <div className={`flex items-center gap-1 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
           {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
           <span>{isPositive ? '+' : ''}{changePercent.toFixed(2)}%</span>

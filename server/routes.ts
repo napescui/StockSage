@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { fetchStockData, formatMarketCap, formatVolume, calculateTechnicalIndicators, suggestSimilarStocks } from "./services/yahoo-finance";
 import { analyzeStock, generateStockInsight } from "./services/gemini";
+import { fetchExchangeRates, SUPPORTED_CURRENCIES, convertPrice, formatCurrency } from "./services/currency";
 import { insertStockDataSchema, insertChatMessageSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -228,6 +229,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Chat history error:", error);
       res.status(500).json({ error: "Failed to fetch chat history" });
+    }
+  });
+
+  // Get supported currencies
+  app.get("/api/currencies", async (req, res) => {
+    try {
+      res.json(SUPPORTED_CURRENCIES);
+    } catch (error) {
+      console.error("Currencies error:", error);
+      res.status(500).json({ error: "Failed to fetch currencies" });
+    }
+  });
+
+  // Get exchange rates
+  app.get("/api/exchange-rates", async (req, res) => {
+    try {
+      const { base = 'USD' } = req.query;
+      const rates = await fetchExchangeRates(base as string);
+      res.json(rates);
+    } catch (error) {
+      console.error("Exchange rates error:", error);
+      res.status(500).json({ error: "Failed to fetch exchange rates" });
+    }
+  });
+
+  // Convert stock data to different currency
+  app.get("/api/stock/:symbol/convert", async (req, res) => {
+    try {
+      const { symbol } = req.params;
+      const { currency = 'USD', period = '1mo' } = req.query;
+      
+      const stockData = await fetchStockData(symbol.toUpperCase(), period as string);
+      
+      if (stockData.error) {
+        return res.status(404).json({ error: stockData.error });
+      }
+      
+      // Get exchange rates
+      const rates = await fetchExchangeRates();
+      
+      // Convert prices
+      const convertedData = {
+        ...stockData,
+        currentPrice: convertPrice(stockData.currentPrice, 'USD', currency as string, rates),
+        change: convertPrice(stockData.change, 'USD', currency as string, rates),
+        high52w: convertPrice(stockData.high52w, 'USD', currency as string, rates),
+        low52w: convertPrice(stockData.low52w, 'USD', currency as string, rates),
+        history: stockData.history.map((item: any) => ({
+          ...item,
+          open: convertPrice(item.open, 'USD', currency as string, rates),
+          high: convertPrice(item.high, 'USD', currency as string, rates),
+          low: convertPrice(item.low, 'USD', currency as string, rates),
+          close: convertPrice(item.close, 'USD', currency as string, rates),
+        })),
+        currency: currency as string,
+        formattedPrice: formatCurrency(convertPrice(stockData.currentPrice, 'USD', currency as string, rates), currency as string),
+      };
+      
+      res.json(convertedData);
+    } catch (error) {
+      console.error("Currency conversion error:", error);
+      res.status(500).json({ error: "Failed to convert currency" });
     }
   });
 

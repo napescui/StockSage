@@ -8,6 +8,8 @@ import { Search, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { CATEGORIES, getInstrumentsByCategory, type FinancialInstrument } from "@shared/financial-data";
 import MiniChart from "@/components/mini-chart";
 import FinancialDataGuard from "@/components/financial-data-guard";
+import CurrencySelector from "@/components/currency-selector";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface CategoryViewProps {
   category: string;
@@ -59,6 +61,7 @@ function CategoryView({ category, instruments }: CategoryViewProps) {
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('stocks');
   const [searchTerm, setSearchTerm] = useState('');
+  const { selectedCurrency, setCurrency } = useCurrency();
 
   const filteredInstruments = getInstrumentsByCategory(selectedCategory).filter(instrument =>
     instrument.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,9 +73,18 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            StockAnalyzer Pro
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1"></div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              StockAnalyzer Pro
+            </h1>
+            <div className="flex-1 flex justify-end">
+              <CurrencySelector 
+                selectedCurrency={selectedCurrency}
+                onCurrencyChange={setCurrency}
+              />
+            </div>
+          </div>
           <p className="text-muted-foreground text-lg">
             Analisis komprehensif untuk saham, indeks, obligasi, kripto, dan komoditas
           </p>
