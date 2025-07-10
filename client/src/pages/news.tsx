@@ -144,17 +144,6 @@ export default function News() {
     setDisplayedNews([]);
   }, [searchTerm, selectedCategory, sortBy]);
 
-  useEffect(() => {
-    if (sortedNews.length > 0) {
-      loadMoreNews();
-    }
-  }, [page]);
-
-  // Reset page when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [searchTerm, selectedCategory, sortBy]);
-
   // Infinite scroll handler
   useEffect(() => {
     const handleScroll = () => {
