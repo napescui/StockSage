@@ -2,7 +2,7 @@
 
 ## Overview
 
-StockAnalyzer Pro is a comprehensive stock analysis platform built with React frontend and Express backend. It provides real-time stock data visualization, technical indicators, AI-powered insights, and interactive charts. The application integrates with Yahoo Finance for stock data and uses Google's Gemini AI for intelligent stock analysis.
+StockAnalyzer Pro is a comprehensive financial analysis platform built with React frontend and Express backend. It provides real-time financial data visualization, technical indicators, AI-powered insights, and interactive charts for stocks, indices, bonds, cryptocurrencies, and commodities. The application integrates with Yahoo Finance for financial data and uses Google's Gemini AI for intelligent analysis with emoji and markdown support.
 
 ## User Preferences
 
@@ -34,10 +34,12 @@ Preferred communication style: Simple, everyday language.
 - **Data Validation**: Zod schemas for type-safe data handling
 
 ### Frontend Components
+- **Home Page**: Main dashboard with categories for stocks, indices, bonds, crypto, and commodities
+- **Asset Detail Page**: Comprehensive analysis view for individual financial instruments
 - **Stock Input**: Symbol search and period selection
 - **Stock Overview**: Company information and key metrics display
 - **Interactive Charts**: Real-time price charts with technical indicators
-- **AI Chat**: Conversational interface for stock analysis
+- **AI Chat**: Conversational interface with emoji and markdown support
 - **Data Table**: Filterable and sortable historical data view
 - **Technical Indicators**: RSI, moving averages, and other technical analysis tools
 
@@ -85,17 +87,29 @@ Preferred communication style: Simple, everyday language.
 
 ### Architecture Decisions
 
+#### Multi-Category Financial Platform
+- **Problem**: Need to support multiple types of financial instruments beyond stocks
+- **Solution**: Category-based navigation with hundreds of instruments across stocks, indices, bonds, crypto, and commodities
+- **Rationale**: Comprehensive financial analysis platform covering all major asset classes
+- **Date**: July 2025
+
 #### Database Choice
 - **Problem**: Need for structured data storage with relationships
 - **Solution**: PostgreSQL with Drizzle ORM
 - **Rationale**: Type safety, excellent TypeScript integration, and serverless compatibility
 - **Alternatives**: SQLite (limited scalability), MongoDB (less structured)
 
-#### AI Integration
-- **Problem**: Need for intelligent stock analysis and insights
-- **Solution**: Google Gemini AI with contextual prompting
-- **Rationale**: Advanced language model with good performance and cost-effectiveness
-- **Alternatives**: OpenAI GPT (more expensive), local models (resource intensive)
+#### AI Integration Enhancement
+- **Problem**: Need for intelligent financial analysis with engaging presentation
+- **Solution**: Google Gemini AI with emoji and markdown formatting support
+- **Rationale**: Enhanced user experience with visual formatting and emoji support
+- **Date**: July 2025
+
+#### Routing Structure
+- **Problem**: Need for scalable navigation between instrument categories and individual assets
+- **Solution**: Home page with category selection, dedicated asset detail pages with dynamic routing
+- **Rationale**: Clear separation of concerns and scalable navigation for hundreds of instruments
+- **Date**: July 2025
 
 #### Frontend State Management
 - **Problem**: Complex server state synchronization and caching
@@ -114,3 +128,10 @@ Preferred communication style: Simple, everyday language.
 - **Solution**: Radix UI primitives with shadcn/ui design system
 - **Rationale**: Accessibility compliance, headless architecture, and Tailwind integration
 - **Alternatives**: Material-UI (heavier), Chakra UI (less customizable), custom components (time-consuming)
+
+### Recent Changes
+- **July 2025**: Migrated from Replit Agent to Replit environment with enhanced security
+- **July 2025**: Restructured application with main category page and individual asset detail pages
+- **July 2025**: Added support for indices, bonds, cryptocurrencies, and commodities (200+ instruments)
+- **July 2025**: Enhanced AI chat with emoji and markdown formatting support
+- **July 2025**: Implemented Indonesian language interface for better user experience
