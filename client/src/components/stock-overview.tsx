@@ -22,6 +22,30 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
     enabled: !!symbol,
   });
 
+  // Track price changes for animation
+  useEffect(() => {
+    if (stockData?.currentPrice && previousPrice !== null) {
+      if (stockData.currentPrice > previousPrice) {
+        setPriceChange('up');
+        setIsAnimating(true);
+      } else if (stockData.currentPrice < previousPrice) {
+        setPriceChange('down');
+        setIsAnimating(true);
+      } else {
+        setPriceChange('neutral');
+      }
+      
+      // Reset animation after 1 second
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 1000);
+    }
+    
+    if (stockData?.currentPrice) {
+      setPreviousPrice(stockData.currentPrice);
+    }
+  }, [stockData?.currentPrice, previousPrice]);
+
   if (isLoading) {
     return (
       <Card className="bg-surface border-border mb-6">
@@ -64,30 +88,6 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
       </Card>
     );
   }
-
-  // Track price changes for animation
-  useEffect(() => {
-    if (stockData?.currentPrice && previousPrice !== null) {
-      if (stockData.currentPrice > previousPrice) {
-        setPriceChange('up');
-        setIsAnimating(true);
-      } else if (stockData.currentPrice < previousPrice) {
-        setPriceChange('down');
-        setIsAnimating(true);
-      } else {
-        setPriceChange('neutral');
-      }
-      
-      // Reset animation after 1 second
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 1000);
-    }
-    
-    if (stockData?.currentPrice) {
-      setPreviousPrice(stockData.currentPrice);
-    }
-  }, [stockData?.currentPrice, previousPrice]);
 
   if (!stockData) return null;
 
