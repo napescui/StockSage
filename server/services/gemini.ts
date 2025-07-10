@@ -5,7 +5,7 @@ const ai = new GoogleGenAI({
 });
 
 export async function analyzeStock(symbol: string, stockInfo: any, message: string): Promise<string> {
-  const prompt = `You are a professional stock analyst. The user is asking about ${symbol} stock.
+  const prompt = `You are a professional stock analyst assistant. The user is asking about ${symbol} stock.
 
 Current stock information:
 - Symbol: ${symbol}
@@ -17,7 +17,7 @@ Current stock information:
 
 User question: ${message}
 
-Please provide a comprehensive analysis based on the current data and general market knowledge. Be professional and informative. Format your response in plain text without using markdown symbols like ** or *, and use proper spacing and paragraphs. Keep the response conversational and easy to read.`;
+Please provide a comprehensive analysis based on the current data and general market knowledge. Be professional and informative. Use markdown formatting with **bold** for important terms and concepts. Use emojis to make your response more engaging (📈 for growth, 📉 for decline, 💡 for insights, ⚠️ for warnings, etc.). Keep the response conversational and easy to read.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -31,19 +31,15 @@ Please provide a comprehensive analysis based on the current data and general ma
       },
     });
 
-    let text = response.text || "I apologize, but I'm unable to provide an analysis at this time.";
+    let text = response.text || "I apologize, but I'm unable to provide an analysis at this time. 😔";
     
-    // Clean up markdown formatting
-    text = text.replace(/\*\*(.*?)\*\*/g, '$1'); // Remove bold markdown
-    text = text.replace(/\*(.*?)\*/g, '$1'); // Remove italic markdown
-    text = text.replace(/_{2,}/g, ''); // Remove underscores
-    text = text.replace(/#{1,6}\s*/g, ''); // Remove headers
-    text = text.replace(/\n{3,}/g, '\n\n'); // Limit line breaks
+    // Clean up excessive line breaks but preserve markdown formatting
+    text = text.replace(/\n{3,}/g, '\n\n'); // Limit line breaks to maximum 2
     
     return text;
   } catch (error) {
     console.error("Gemini API error:", error);
-    return "I'm experiencing technical difficulties. Please try again later.";
+    return "I'm experiencing technical difficulties. Please try again later. 🔧";
   }
 }
 

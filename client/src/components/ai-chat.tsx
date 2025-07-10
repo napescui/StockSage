@@ -8,6 +8,28 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+// Component to render markdown-formatted text
+function MarkdownText({ text }: { text: string }) {
+  const renderText = (text: string) => {
+    // Convert **text** to bold
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const boldText = part.slice(2, -2);
+        return <strong key={index} className="font-semibold text-foreground">{boldText}</strong>;
+      }
+      return part;
+    });
+  };
+
+  return (
+    <div className="text-sm text-foreground whitespace-pre-wrap">
+      {renderText(text)}
+    </div>
+  );
+}
+
 interface AIChatProps {
   currentSymbol: string;
 }
@@ -73,9 +95,7 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
                 <Bot className="w-3 h-3 text-white" />
               </div>
               <div className="bg-background/50 rounded-lg p-3 max-w-xs">
-                <p className="text-sm text-foreground">
-                  Hello! I'm your AI assistant. Ask me anything about {currentSymbol || 'stocks'} or market analysis.
-                </p>
+                <MarkdownText text={`Hello! 👋 I'm your AI assistant. Ask me anything about **${currentSymbol || 'stocks'}** or market analysis! 📈`} />
               </div>
             </div>
 
@@ -98,7 +118,7 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
                     <Bot className="w-3 h-3 text-white" />
                   </div>
                   <div className="bg-background/50 rounded-lg p-3 max-w-xs">
-                    <p className="text-sm text-foreground">{chat.response}</p>
+                    <MarkdownText text={chat.response} />
                   </div>
                 </div>
               </div>
