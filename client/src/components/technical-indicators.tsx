@@ -3,6 +3,7 @@ import { Info, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice } from "@shared/financial-data";
 
 interface TechnicalIndicatorsProps {
   symbol: string;
@@ -66,7 +67,7 @@ export default function TechnicalIndicators({ symbol, period }: TechnicalIndicat
             <Info className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className={`text-2xl font-bold font-mono mb-2 ${indicators.macd >= 0 ? 'text-success' : 'text-error'}`}>
-            {indicators.macd >= 0 ? '+' : ''}{indicators.macd?.toFixed(2)}
+            {indicators.macd >= 0 ? '+' : ''}{formatPrice(indicators.macd)}
           </div>
           <div className="flex items-center space-x-1">
             <TrendingUp className={`w-4 h-4 ${indicators.macd >= 0 ? 'text-success' : 'text-error'}`} />
@@ -88,19 +89,19 @@ export default function TechnicalIndicators({ symbol, period }: TechnicalIndicat
             <div className="flex justify-between">
               <span className="text-xs text-muted-foreground">Upper:</span>
               <span className="text-xs text-foreground font-mono">
-                ${indicators.bollinger?.upper?.toFixed(2)}
+                ${formatPrice(indicators.bollinger?.upper)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-xs text-muted-foreground">Middle:</span>
               <span className="text-xs text-foreground font-mono">
-                ${indicators.bollinger?.middle?.toFixed(2)}
+                ${formatPrice(indicators.bollinger?.middle)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-xs text-muted-foreground">Lower:</span>
               <span className="text-xs text-foreground font-mono">
-                ${indicators.bollinger?.lower?.toFixed(2)}
+                ${formatPrice(indicators.bollinger?.lower)}
               </span>
             </div>
           </div>
@@ -118,13 +119,13 @@ export default function TechnicalIndicators({ symbol, period }: TechnicalIndicat
             <div className="flex justify-between">
               <span className="text-xs text-muted-foreground">SMA 50:</span>
               <span className="text-xs text-foreground font-mono">
-                ${indicators.sma50?.toFixed(2)}
+                ${formatPrice(indicators.sma50)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-xs text-muted-foreground">SMA 200:</span>
               <span className="text-xs text-foreground font-mono">
-                ${indicators.sma200?.toFixed(2)}
+                ${formatPrice(indicators.sma200)}
               </span>
             </div>
             <div className="flex items-center space-x-1 mt-2">

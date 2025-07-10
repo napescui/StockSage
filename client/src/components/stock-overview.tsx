@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Building2, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice } from "@shared/financial-data";
 
 interface StockOverviewProps {
   symbol: string;
@@ -78,13 +79,13 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
           </div>
           <div className="text-right mt-4 md:mt-0">
             <div className="text-3xl font-bold text-foreground font-mono">
-              ${stockData.currentPrice?.toFixed(2)}
+              ${formatPrice(stockData.currentPrice)}
             </div>
             <div className={`flex items-center space-x-2 ${changeColor}`}>
               <TrendIcon className="w-4 h-4" />
               <span className="font-mono">
                 {isPositive ? '+' : ''}
-                {stockData.change?.toFixed(2)} ({stockData.changePercent?.toFixed(2)}%)
+                {formatPrice(stockData.change)} ({formatPrice(stockData.changePercent)}%)
               </span>
             </div>
           </div>

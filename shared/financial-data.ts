@@ -30,7 +30,6 @@ export const FINANCIAL_INSTRUMENTS: FinancialInstrument[] = [
   { symbol: 'MA', name: 'Mastercard Inc.', category: 'stocks', description: 'Payment processing' },
   { symbol: 'DIS', name: 'The Walt Disney Company', category: 'stocks', description: 'Entertainment and media' },
   { symbol: 'ADBE', name: 'Adobe Inc.', category: 'stocks', description: 'Software and creative tools' },
-  { symbol: 'NFLX', name: 'Netflix Inc.', category: 'stocks', description: 'Streaming services' },
   { symbol: 'CRM', name: 'Salesforce Inc.', category: 'stocks', description: 'Cloud computing' },
   { symbol: 'PYPL', name: 'PayPal Holdings', category: 'stocks', description: 'Digital payments' },
   { symbol: 'INTC', name: 'Intel Corporation', category: 'stocks', description: 'Semiconductor manufacturing' },
@@ -173,4 +172,29 @@ export const CATEGORIES = [
 
 export function getInstrumentsByCategory(category: string) {
   return FINANCIAL_INSTRUMENTS.filter(instrument => instrument.category === category);
+}
+
+export function formatPrice(price: number): string {
+  if (price === null || price === undefined || isNaN(price)) {
+    return 'N/A';
+  }
+  
+  // Format with comma separators and 2 decimal places
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price);
+}
+
+export function formatLargeNumber(num: number): string {
+  if (num === null || num === undefined || isNaN(num)) {
+    return 'N/A';
+  }
+  
+  // Format large numbers with appropriate suffixes
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: 2,
+  }).format(num);
 }

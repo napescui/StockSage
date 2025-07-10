@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice, formatLargeNumber } from "@shared/financial-data";
 
 interface DataTableProps {
   symbol: string;
@@ -178,22 +179,22 @@ export default function DataTable({ symbol }: DataTableProps) {
                     <TableRow key={row.id} className="border-border hover:bg-background/30 transition-colors">
                       <TableCell className="font-mono text-muted-foreground">{row.date}</TableCell>
                       <TableCell className="font-mono text-foreground text-right">
-                        ${row.open?.toFixed(2)}
+                        ${formatPrice(row.open)}
                       </TableCell>
                       <TableCell className="font-mono text-foreground text-right">
-                        ${row.high?.toFixed(2)}
+                        ${formatPrice(row.high)}
                       </TableCell>
                       <TableCell className="font-mono text-foreground text-right">
-                        ${row.low?.toFixed(2)}
+                        ${formatPrice(row.low)}
                       </TableCell>
                       <TableCell className="font-mono text-foreground text-right">
-                        ${row.close?.toFixed(2)}
+                        ${formatPrice(row.close)}
                       </TableCell>
                       <TableCell className="font-mono text-foreground text-right">
-                        {(row.volume / 1000000).toFixed(1)}M
+                        {formatLargeNumber(row.volume)}
                       </TableCell>
                       <TableCell className={`font-mono text-right ${isPositive ? 'text-success' : 'text-error'}`}>
-                        {isPositive ? '+' : ''}{change.toFixed(2)}%
+                        {isPositive ? '+' : ''}{formatPrice(change)}%
                       </TableCell>
                     </TableRow>
                   );
