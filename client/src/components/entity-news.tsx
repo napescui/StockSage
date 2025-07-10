@@ -45,32 +45,7 @@ export default function EntityNews({ symbol, companyName }: EntityNewsProps) {
     );
   }
 
-  // Fallback news data for demonstration
-  const fallbackNews: NewsItem[] = [
-    {
-      title: `${companyName || symbol} Reports Strong Q3 Earnings`,
-      summary: `${companyName || symbol} mengumumkan hasil keuangan kuartal ketiga yang melampaui ekspektasi analis dengan pertumbuhan pendapatan yang solid.`,
-      url: "#",
-      publishedAt: "2025-07-10T08:30:00Z",
-      source: "Financial Times"
-    },
-    {
-      title: `Analysts Upgrade ${symbol} Stock Rating`,
-      summary: `Beberapa analis meningkatkan rating saham ${symbol} menjadi 'Buy' dengan target harga yang lebih tinggi berdasarkan prospek bisnis yang kuat.`,
-      url: "#",
-      publishedAt: "2025-07-10T07:15:00Z",
-      source: "Bloomberg"
-    },
-    {
-      title: `${companyName || symbol} Announces New Product Launch`,
-      summary: `${companyName || symbol} meluncurkan produk inovatif terbaru yang diharapkan akan meningkatkan market share dan pendapatan perusahaan.`,
-      url: "#",
-      publishedAt: "2025-07-10T06:45:00Z",
-      source: "Reuters"
-    }
-  ];
-
-  const news = newsData?.articles || fallbackNews;
+  const news = newsData?.articles || [];
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -104,12 +79,18 @@ export default function EntityNews({ symbol, companyName }: EntityNewsProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {news.slice(0, 5).map((item, index) => (
-          <div key={index} className="border-l-2 border-primary/20 pl-4 space-y-2">
+          <a 
+            key={index} 
+            href={item.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block border-l-2 border-primary/20 pl-4 space-y-2 hover:border-primary/40 transition-colors cursor-pointer group"
+          >
             <div className="flex items-start justify-between gap-2">
-              <h4 className="text-sm font-medium text-foreground leading-tight">
+              <h4 className="text-sm font-medium text-foreground leading-tight group-hover:text-primary transition-colors">
                 {item.title}
               </h4>
-              <ExternalLink className="w-3 h-3 text-muted-foreground flex-shrink-0 mt-1" />
+              <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary flex-shrink-0 mt-1 transition-colors" />
             </div>
             
             <p className="text-xs text-muted-foreground line-clamp-2">
@@ -125,13 +106,19 @@ export default function EntityNews({ symbol, companyName }: EntityNewsProps) {
                 {formatTime(item.publishedAt)}
               </div>
             </div>
-          </div>
+          </a>
         ))}
         
         <div className="text-center pt-2">
-          <button className="text-xs text-primary hover:underline">
+          <a 
+            href={`https://finance.yahoo.com/quote/${symbol}/news`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+          >
             Lihat semua berita {symbol}
-          </button>
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       </CardContent>
     </Card>
