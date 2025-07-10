@@ -26,6 +26,30 @@ export default function Home() {
     instrument.symbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Apply market filters
+  const sortedInstruments = [...filteredInstruments].sort((a, b) => {
+    if (marketFilters.sortBy === 'marketCap') {
+      // Sort by market cap (mock data based on symbol popularity)
+      const aValue = a.price || 0;
+      const bValue = b.price || 0;
+      return marketFilters.sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+    } else if (marketFilters.sortBy === 'volume') {
+      // Sort by volume (mock data)
+      const aValue = a.changePercent || 0;
+      const bValue = b.changePercent || 0;
+      return marketFilters.sortOrder === 'desc' ? Math.abs(bValue) - Math.abs(aValue) : Math.abs(aValue) - Math.abs(bValue);
+    } else if (marketFilters.sortBy === 'priceChange') {
+      const aValue = a.changePercent || 0;
+      const bValue = b.changePercent || 0;
+      return marketFilters.sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+    } else if (marketFilters.sortBy === 'alphabetical') {
+      return marketFilters.sortOrder === 'desc' ? 
+        b.name.localeCompare(a.name) : 
+        a.name.localeCompare(b.name);
+    }
+    return 0;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
       <div className="container mx-auto px-4 py-8">
@@ -107,7 +131,7 @@ export default function Home() {
             <FinancialDataGuard title="Pasar Keuangan">
               <LazyCategoryView 
                 category={selectedCategory} 
-                instruments={filteredInstruments} 
+                instruments={sortedInstruments} 
               />
             </FinancialDataGuard>
           </div>

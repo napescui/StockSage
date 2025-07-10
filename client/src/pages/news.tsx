@@ -35,9 +35,9 @@ export default function News() {
     queryKey: ['/api/news', selectedCategory, sortBy],
   });
 
-  // Generate comprehensive news data
+  // Generate comprehensive news data from trusted sources only
   const generateNewsData = (): NewsItem[] => {
-    const sources = ["Reuters", "Bloomberg", "CNBC", "Financial Times", "Wall Street Journal", "Yahoo Finance", "MarketWatch", "Seeking Alpha", "CoinDesk", "The Motley Fool"];
+    const sources = ["Reuters", "Bloomberg", "Yahoo Finance"]; // Only trusted sources
     const categories = ["market", "policy", "crypto", "commodities", "earnings", "analysis", "global", "tech"];
     const sentiments: ("positive" | "negative" | "neutral")[] = ["positive", "negative", "neutral"];
     const symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "BTC-USD", "ETH-USD", "SPY", "QQQ", "XOM", "CVX", "GOLD", "SILVER"];
@@ -129,7 +129,15 @@ export default function News() {
     } else {
       setDisplayedNews(prev => [...prev, ...newItems]);
     }
-  }, [sortedNews, page]);
+  }, [page, itemsPerPage]);
+
+  // Update displayed news when filters change
+  useEffect(() => {
+    if (sortedNews.length > 0) {
+      const newItems = sortedNews.slice(0, itemsPerPage);
+      setDisplayedNews(newItems);
+    }
+  }, [sortedNews, itemsPerPage]);
 
   useEffect(() => {
     setPage(1);
@@ -137,8 +145,15 @@ export default function News() {
   }, [searchTerm, selectedCategory, sortBy]);
 
   useEffect(() => {
-    loadMoreNews();
-  }, [loadMoreNews, page]);
+    if (sortedNews.length > 0) {
+      loadMoreNews();
+    }
+  }, [page]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, selectedCategory, sortBy]);
 
   // Infinite scroll handler
   useEffect(() => {
