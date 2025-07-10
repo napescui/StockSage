@@ -12,6 +12,7 @@ interface PriceTickerProps {
 export default function PriceTicker({ symbol, className = "" }: PriceTickerProps) {
   const [previousPrice, setPreviousPrice] = useState<number | null>(null);
   const [priceChange, setPriceChange] = useState<'up' | 'down' | 'neutral'>('neutral');
+  const [isAnimating, setIsAnimating] = useState(false);
   const { convertPrice, formatCurrency } = useCurrency();
 
   const { data: stockData } = useQuery({
@@ -24,11 +25,18 @@ export default function PriceTicker({ symbol, className = "" }: PriceTickerProps
     if (stockData?.currentPrice && previousPrice !== null) {
       if (stockData.currentPrice > previousPrice) {
         setPriceChange('up');
+        setIsAnimating(true);
       } else if (stockData.currentPrice < previousPrice) {
         setPriceChange('down');
+        setIsAnimating(true);
       } else {
         setPriceChange('neutral');
       }
+      
+      // Reset animation after 1 second
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 1000);
     }
     
     if (stockData?.currentPrice) {
@@ -53,7 +61,11 @@ export default function PriceTicker({ symbol, className = "" }: PriceTickerProps
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="flex items-center gap-1">
-        <span className="font-mono text-lg font-bold">
+        <span className={`font-mono text-lg font-bold transition-colors duration-200 ${
+          isAnimating && priceChange === 'up' ? 'text-green-500' : 
+          isAnimating && priceChange === 'down' ? 'text-red-500' : 
+          'text-foreground'
+        }`}>
           {formatCurrency(currentPrice)}
         </span>
         

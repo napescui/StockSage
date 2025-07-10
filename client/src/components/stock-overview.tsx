@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Building2, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +13,10 @@ interface StockOverviewProps {
 
 export default function StockOverview({ symbol, period }: StockOverviewProps) {
   const { convertPrice, formatCurrency } = useCurrency();
+  const [previousPrice, setPreviousPrice] = useState<number | null>(null);
+  const [priceChange, setPriceChange] = useState<'up' | 'down' | 'neutral'>('neutral');
+  const [isAnimating, setIsAnimating] = useState(false);
+  
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=${period}`],
     enabled: !!symbol,
@@ -60,6 +65,30 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
     );
   }
 
+  // Track price changes for animation
+  useEffect(() => {
+    if (stockData?.currentPrice && previousPrice !== null) {
+      if (stockData.currentPrice > previousPrice) {
+        setPriceChange('up');
+        setIsAnimating(true);
+      } else if (stockData.currentPrice < previousPrice) {
+        setPriceChange('down');
+        setIsAnimating(true);
+      } else {
+        setPriceChange('neutral');
+      }
+      
+      // Reset animation after 1 second
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 1000);
+    }
+    
+    if (stockData?.currentPrice) {
+      setPreviousPrice(stockData.currentPrice);
+    }
+  }, [stockData?.currentPrice, previousPrice]);
+
   if (!stockData) return null;
 
   const isPositive = stockData.change >= 0;
@@ -86,7 +115,11 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
             </div>
           </div>
           <div className="text-right mt-4 md:mt-0">
-            <div className="text-3xl font-bold text-foreground font-mono">
+            <div className={`text-3xl font-bold font-mono transition-colors duration-200 ${
+              isAnimating && priceChange === 'up' ? 'text-green-500' : 
+              isAnimating && priceChange === 'down' ? 'text-red-500' : 
+              'text-foreground'
+            }`}>
               {formatCurrency(convertPrice(stockData.currentPrice, 'USD'))}
             </div>
             <div className={`flex items-center space-x-2 ${changeColor}`}>
