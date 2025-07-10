@@ -7,9 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface StockChartProps {
   symbol: string;
   period: string;
+  onPeriodChange?: (period: string) => void;
 }
 
-export default function StockChart({ symbol, period }: StockChartProps) {
+export default function StockChart({ symbol, period, onPeriodChange }: StockChartProps) {
   const plotRef = useRef<HTMLDivElement>(null);
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=${period}`],
@@ -106,16 +107,36 @@ export default function StockChart({ symbol, period }: StockChartProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-foreground">Price Chart</CardTitle>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" className="bg-primary text-primary-foreground border-primary">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onPeriodChange?.('1d')}
+              className={period === '1d' ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground hover:text-primary"}
+            >
               1D
             </Button>
-            <Button variant="outline" size="sm" className="text-muted-foreground hover:text-primary">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onPeriodChange?.('1wk')}
+              className={period === '1wk' ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground hover:text-primary"}
+            >
               1W
             </Button>
-            <Button variant="outline" size="sm" className="text-muted-foreground hover:text-primary">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onPeriodChange?.('1mo')}
+              className={period === '1mo' ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground hover:text-primary"}
+            >
               1M
             </Button>
-            <Button variant="outline" size="sm" className="text-muted-foreground hover:text-primary">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onPeriodChange?.('1y')}
+              className={period === '1y' ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground hover:text-primary"}
+            >
               1Y
             </Button>
           </div>

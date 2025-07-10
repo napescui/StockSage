@@ -99,7 +99,7 @@ export default function AssetDetail() {
           {/* Left Column - Charts and Data */}
           <div className="lg:col-span-2 space-y-6">
             <StockOverview symbol={currentSymbol} period={currentPeriod} />
-            <StockChart symbol={currentSymbol} period={currentPeriod} />
+            <StockChart symbol={currentSymbol} period={currentPeriod} onPeriodChange={setPeriod} />
             <TechnicalIndicators symbol={currentSymbol} period={currentPeriod} />
             <DataTable symbol={currentSymbol} />
           </div>

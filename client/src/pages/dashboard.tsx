@@ -62,7 +62,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chart Section */}
           <div className="lg:col-span-2">
-            <StockChart symbol={currentSymbol} period={period} />
+            <StockChart symbol={currentSymbol} period={period} onPeriodChange={setPeriod} />
           </div>
 
           {/* AI Chat */}
