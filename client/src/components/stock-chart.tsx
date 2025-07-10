@@ -110,6 +110,14 @@ export default function StockChart({ symbol, period, onPeriodChange }: StockChar
             <Button 
               variant="outline" 
               size="sm" 
+              onClick={() => onPeriodChange?.('1h')}
+              className={period === '1h' ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground hover:text-primary"}
+            >
+              1H
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
               onClick={() => onPeriodChange?.('1d')}
               className={period === '1d' ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground hover:text-primary"}
             >

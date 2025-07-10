@@ -65,10 +65,10 @@ export default function StockInput({ onSymbolChange, onPeriodChange, currentSymb
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="1h">1 Hour</SelectItem>
                 <SelectItem value="1d">1 Day</SelectItem>
-                <SelectItem value="1w">1 Week</SelectItem>
+                <SelectItem value="1wk">1 Week</SelectItem>
                 <SelectItem value="1mo">1 Month</SelectItem>
-                <SelectItem value="3mo">3 Months</SelectItem>
                 <SelectItem value="1y">1 Year</SelectItem>
               </SelectContent>
             </Select>

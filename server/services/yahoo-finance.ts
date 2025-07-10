@@ -10,14 +10,34 @@ import sys
 
 try:
     ticker = yf.Ticker("${symbol}")
-    hist = ticker.history(period="${period}")
+    
+    # Handle different periods and intervals
+    if "${period}" == "1h":
+        hist = ticker.history(period="1d", interval="1h")
+        date_format = "%Y-%m-%d %H:%M"
+    elif "${period}" == "1d":
+        hist = ticker.history(period="1d", interval="1m")
+        date_format = "%Y-%m-%d %H:%M"
+    elif "${period}" == "1wk":
+        hist = ticker.history(period="1wk", interval="1h")
+        date_format = "%Y-%m-%d %H:%M"
+    elif "${period}" == "1mo":
+        hist = ticker.history(period="1mo", interval="1d")
+        date_format = "%Y-%m-%d"
+    elif "${period}" == "1y":
+        hist = ticker.history(period="1y", interval="1d")
+        date_format = "%Y-%m-%d"
+    else:
+        hist = ticker.history(period="${period}")
+        date_format = "%Y-%m-%d"
+    
     info = ticker.info
 
     # Convert history to JSON-serializable format
     history_data = []
     for date, row in hist.iterrows():
         history_data.append({
-            "date": date.strftime("%Y-%m-%d"),
+            "date": date.strftime(date_format),
             "open": float(row["Open"]),
             "high": float(row["High"]),
             "low": float(row["Low"]),
