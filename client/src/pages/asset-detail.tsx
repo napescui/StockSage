@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StockInput from "@/components/stock-input";
 import StockOverview from "@/components/stock-overview";
-import StockChart from "@/components/stock-chart";
+import LiveChart from "@/components/live-chart";
 import TechnicalIndicators from "@/components/technical-indicators";
 import DataTable from "@/components/data-table";
 import AIChat from "@/components/ai-chat";
@@ -99,7 +99,7 @@ export default function AssetDetail() {
           {/* Left Column - Charts and Data */}
           <div className="lg:col-span-2 space-y-6">
             <StockOverview symbol={currentSymbol} period={currentPeriod} />
-            <StockChart symbol={currentSymbol} period={currentPeriod} onPeriodChange={setPeriod} />
+            <LiveChart symbol={currentSymbol} period={currentPeriod} onPeriodChange={setPeriod} />
             <TechnicalIndicators symbol={currentSymbol} period={currentPeriod} />
             <DataTable symbol={currentSymbol} />
           </div>
