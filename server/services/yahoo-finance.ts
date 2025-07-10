@@ -1,3 +1,4 @@
+
 import { spawn } from 'child_process';
 import { StockInfo, TechnicalIndicators, ChartData } from '@shared/schema';
 
@@ -28,22 +29,21 @@ try:
     # Extract key info with proper validation
     current_price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
     
-    # Handle market cap with multiple fallbacks and proper formatting
-    shares_outstanding = info.get("sharesOutstanding", 0)
-    market_cap_raw = info.get("marketCap") or (shares_outstanding * current_price if shares_outstanding else 0) or 0
+    # Handle market cap with multiple fallbacks
+    market_cap_raw = info.get("marketCap") or 0
     if market_cap_raw >= 1e12:
-        market_cap = f"\\${market_cap_raw / 1e12:.2f}T"
+        market_cap = f"${market_cap_raw / 1e12:.2f}T"
     elif market_cap_raw >= 1e9:
-        market_cap = f"\\${market_cap_raw / 1e9:.2f}B"
+        market_cap = f"${market_cap_raw / 1e9:.2f}B"
     elif market_cap_raw >= 1e6:
-        market_cap = f"\\${market_cap_raw / 1e6:.2f}M"
+        market_cap = f"${market_cap_raw / 1e6:.2f}M"
     elif market_cap_raw > 0:
-        market_cap = f"\\${market_cap_raw:,.0f}"
+        market_cap = f"${market_cap_raw:,.0f}"
     else:
         market_cap = "N/A"
     
-    # Handle volume with multiple fallbacks and proper formatting
-    volume_raw = info.get("volume") or info.get("regularMarketVolume") or info.get("averageVolume") or info.get("averageVolume10days") or 0
+    # Handle volume with multiple fallbacks
+    volume_raw = info.get("volume") or info.get("regularMarketVolume") or info.get("averageVolume") or 0
     if volume_raw >= 1e6:
         volume = f"{volume_raw / 1e6:.1f}M"
     elif volume_raw >= 1e3:
@@ -53,9 +53,8 @@ try:
     else:
         volume = "N/A"
     
-    # Handle P/E ratio with proper validation
+    # Handle P/E ratio
     pe = info.get("trailingPE") or info.get("forwardPE") or 0
-    # Check if P/E is valid (not None, not 0, not negative, not too large)
     if pe is None or pe <= 0 or pe > 1000:
         pe = 0
     
@@ -64,24 +63,12 @@ try:
     change = info.get("regularMarketChange", 0)
     change_percent = info.get("regularMarketChangePercent", 0)
     
-    # Validate if this is a valid stock (has basic info)
-    if not current_price and not market_cap and not volume:
-        raise Exception(f"Stock symbol {symbol} not found or invalid")
-    
     # Format and validate all numeric values
     def safe_float(value, default=0):
         try:
             if value is None or value == "N/A" or str(value).lower() == "nan":
                 return default
             return float(value)
-        except (ValueError, TypeError):
-            return default
-    
-    def safe_int(value, default=0):
-        try:
-            if value is None or value == "N/A" or str(value).lower() == "nan":
-                return default
-            return int(value)
         except (ValueError, TypeError):
             return default
     
@@ -138,8 +125,6 @@ except Exception as e:
     });
   });
 }
-
-
 
 export async function suggestSimilarStocks(symbol: string): Promise<string[]> {
   const commonStocks = [
