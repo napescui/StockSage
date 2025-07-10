@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface PriceTickerProps {
   symbol: string;
@@ -11,6 +12,7 @@ interface PriceTickerProps {
 export default function PriceTicker({ symbol, className = "" }: PriceTickerProps) {
   const [previousPrice, setPreviousPrice] = useState<number | null>(null);
   const [priceChange, setPriceChange] = useState<'up' | 'down' | 'neutral'>('neutral');
+  const { convertPrice, formatCurrency } = useCurrency();
 
   const { data: stockData } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=1h`],
@@ -43,8 +45,8 @@ export default function PriceTicker({ symbol, className = "" }: PriceTickerProps
     );
   }
 
-  const currentPrice = stockData.currentPrice || 0;
-  const change = stockData.change || 0;
+  const currentPrice = convertPrice(stockData.currentPrice || 0, 'USD');
+  const change = convertPrice(stockData.change || 0, 'USD');
   const changePercent = stockData.changePercent || 0;
   const isPositive = change >= 0;
 
@@ -52,7 +54,7 @@ export default function PriceTicker({ symbol, className = "" }: PriceTickerProps
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="flex items-center gap-1">
         <span className="font-mono text-lg font-bold">
-          ${currentPrice.toFixed(2)}
+          {formatCurrency(currentPrice)}
         </span>
         
         {priceChange === 'up' && (

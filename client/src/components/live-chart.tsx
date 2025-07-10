@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, RefreshCw } from "lucide-react";
 import PriceTicker from "@/components/price-ticker";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface LiveChartProps {
   symbol: string;
@@ -29,6 +30,7 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
   const [isLive, setIsLive] = useState(true);
   const [updateInterval, setUpdateInterval] = useState(15000); // 15 seconds default
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const { convertPrice, formatCurrency, selectedCurrency } = useCurrency();
 
   const { data: stockData, isLoading, error, refetch } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=${period}`],
@@ -40,8 +42,11 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
   useEffect(() => {
     if (stockData?.history && plotRef.current) {
       import('plotly.js-dist').then((Plotly) => {
+        // Double-check the ref is still valid after async import
+        if (!plotRef.current) return;
+        
         const history = stockData.history;
-        const prices = history.map((d: any) => d.close);
+        const prices = history.map((d: any) => convertPrice(d.close, 'USD'));
         const dates = history.map((d: any) => new Date(d.date));
         
         // Determine price trend color
@@ -67,11 +72,12 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
           },
           fill: 'tonexty',
           fillcolor: isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          name: `${stockData.symbol} - $${lastPrice.toFixed(2)}`,
+          name: `${stockData.symbol} - ${formatCurrency(lastPrice)}`,
           hovertemplate: '<b>%{fullData.name}</b><br>' +
                         'Waktu: %{x}<br>' +
-                        'Harga: $%{y:.2f}<br>' +
+                        'Harga: %{customdata}<br>' +
                         '<extra></extra>',
+          customdata: prices.map(p => formatCurrency(p)),
         };
 
         // Enhanced layout with better time formatting
@@ -90,7 +96,7 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
             spikedash: 'dot'
           },
           yaxis: { 
-            title: 'Harga ($)',
+            title: `Harga (${selectedCurrency})`,
             gridcolor: '#334155',
             color: '#94a3b8',
             tickfont: { family: 'Roboto Mono', size: 10 },

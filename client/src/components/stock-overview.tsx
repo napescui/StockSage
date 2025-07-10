@@ -3,6 +3,7 @@ import { Building2, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@shared/financial-data";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface StockOverviewProps {
   symbol: string;
@@ -10,6 +11,7 @@ interface StockOverviewProps {
 }
 
 export default function StockOverview({ symbol, period }: StockOverviewProps) {
+  const { convertPrice, formatCurrency } = useCurrency();
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=${period}`],
     enabled: !!symbol,
@@ -85,13 +87,13 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
           </div>
           <div className="text-right mt-4 md:mt-0">
             <div className="text-3xl font-bold text-foreground font-mono">
-              ${formatPrice(stockData.currentPrice)}
+              {formatCurrency(convertPrice(stockData.currentPrice, 'USD'))}
             </div>
             <div className={`flex items-center space-x-2 ${changeColor}`}>
               <TrendIcon className="w-4 h-4" />
               <span className="font-mono">
                 {isPositive ? '+' : ''}
-                {formatPrice(stockData.change)} ({formatPrice(stockData.changePercent)}%)
+                {formatCurrency(convertPrice(stockData.change, 'USD'))} ({formatPrice(stockData.changePercent)}%)
               </span>
             </div>
           </div>

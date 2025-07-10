@@ -14,11 +14,14 @@ import { FINANCIAL_INSTRUMENTS } from "@shared/financial-data";
 import RealTimeDashboard from "@/components/real-time-dashboard";
 import FinancialDataGuard from "@/components/financial-data-guard";
 import EntityNews from "@/components/entity-news";
+import CurrencySelector from "@/components/currency-selector";
+import { useCurrency } from "@/contexts/currency-context";
 
 export default function AssetDetail() {
   const { symbol } = useParams<{ symbol: string }>();
   const [currentSymbol, setCurrentSymbol] = useState(symbol || 'AAPL');
   const [currentPeriod, setPeriod] = useState('1mo');
+  const { selectedCurrency, setCurrency } = useCurrency();
 
   const instrumentInfo = FINANCIAL_INSTRUMENTS.find(inst => inst.symbol === currentSymbol);
 
@@ -77,13 +80,19 @@ export default function AssetDetail() {
               )}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-muted-foreground text-sm">
-              {instrumentInfo?.name || 'Loading...'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {instrumentInfo?.description}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-muted-foreground text-sm">
+                {instrumentInfo?.name || 'Loading...'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {instrumentInfo?.description}
+              </p>
+            </div>
+            <CurrencySelector 
+              selectedCurrency={selectedCurrency}
+              onCurrencyChange={setCurrency}
+            />
           </div>
         </div>
 

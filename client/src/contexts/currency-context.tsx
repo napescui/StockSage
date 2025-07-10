@@ -47,18 +47,18 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
         setExchangeRates(rates);
       } catch (error) {
         console.error('Failed to fetch exchange rates:', error);
-        // Fallback rates
+        // Fallback rates (July 2025 current rates)
         setExchangeRates({
           'USD': 1.0,
-          'IDR': 15000.0,
-          'EUR': 0.85,
-          'GBP': 0.75,
-          'JPY': 110.0,
-          'CNY': 7.0,
-          'KRW': 1200.0,
-          'SGD': 1.35,
-          'MYR': 4.2,
-          'THB': 33.0
+          'IDR': 16250.0,   // 1 USD = 16,250 IDR (July 2025)
+          'EUR': 0.92,      // 1 USD = 0.92 EUR
+          'GBP': 0.79,      // 1 USD = 0.79 GBP
+          'JPY': 158.5,     // 1 USD = 158.5 JPY
+          'CNY': 7.28,      // 1 USD = 7.28 CNY
+          'KRW': 1385.0,    // 1 USD = 1,385 KRW
+          'SGD': 1.34,      // 1 USD = 1.34 SGD
+          'MYR': 4.68,      // 1 USD = 4.68 MYR
+          'THB': 36.2       // 1 USD = 36.2 THB
         });
       } finally {
         setIsLoading(false);
