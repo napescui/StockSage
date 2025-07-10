@@ -29,7 +29,8 @@ try:
     current_price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
     
     # Handle market cap with multiple fallbacks and proper formatting
-    market_cap_raw = info.get("marketCap") or info.get("sharesOutstanding", 0) * current_price or 0
+    shares_outstanding = info.get("sharesOutstanding", 0)
+    market_cap_raw = info.get("marketCap") or (shares_outstanding * current_price if shares_outstanding else 0) or 0
     if market_cap_raw >= 1e12:
         market_cap = f"${market_cap_raw / 1e12:.2f}T"
     elif market_cap_raw >= 1e9:
