@@ -15,6 +15,7 @@ export default function StockChart({ symbol, period, onPeriodChange }: StockChar
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: [`/api/stock/${symbol}?period=${period}`],
     enabled: !!symbol,
+    refetchInterval: 15000, // Update every 15 seconds
   });
 
   useEffect(() => {

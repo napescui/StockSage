@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bot, User, Send } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest } from "@/lib/queryClient";
@@ -142,23 +142,33 @@ export default function AIChat({ currentSymbol }: AIChatProps) {
           </div>
         </ScrollArea>
 
-        <div className="flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Ask about stock analysis..."
+        <div className="space-y-2">
+          <Textarea
+            placeholder="Tanyakan tentang analisis pasar, tren, atau strategi investasi..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-1 bg-background border-border text-foreground placeholder:text-muted-foreground text-sm"
+            onKeyDown={handleKeyPress}
+            className="bg-background border-border text-foreground min-h-[80px] resize-none"
             disabled={chatMutation.isPending}
           />
-          <Button
-            onClick={handleSendMessage}
-            disabled={chatMutation.isPending || !message.trim()}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground p-2"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-muted-foreground">
+              {message.length}/2000 karakter
+            </span>
+            <Button
+              onClick={handleSendMessage}
+              disabled={chatMutation.isPending || !message.trim() || message.length > 2000}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {chatMutation.isPending ? (
+                <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
+              ) : (
+                <Send className="w-4 h-4 mr-2" />
+              )}
+              {chatMutation.isPending ? "Mengirim..." : "Kirim"}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

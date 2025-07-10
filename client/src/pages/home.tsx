@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { CATEGORIES, getInstrumentsByCategory, type FinancialInstrument } from "@shared/financial-data";
+import MiniChart from "@/components/mini-chart";
 
 interface CategoryViewProps {
   category: string;
@@ -32,15 +33,18 @@ function CategoryView({ category, instruments }: CategoryViewProps) {
           <Link key={instrument.symbol} href={`/asset/${instrument.symbol}`}>
             <Card className="bg-background border-border hover:bg-accent/50 transition-colors cursor-pointer group">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-foreground">{instrument.symbol}</span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-foreground">{instrument.symbol}</span>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{instrument.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{instrument.description}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">{instrument.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{instrument.description}</p>
                   </div>
+                  <MiniChart symbol={instrument.symbol} />
                 </div>
               </CardContent>
             </Card>
