@@ -1,62 +1,12 @@
 import { useState } from "react";
-import { Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
-import { CATEGORIES, getInstrumentsByCategory, type FinancialInstrument } from "@shared/financial-data";
-import MiniChart from "@/components/mini-chart";
+import { Search } from "lucide-react";
+import { CATEGORIES, getInstrumentsByCategory } from "@shared/financial-data";
+import LazyCategoryView from "@/components/lazy-category-view";
 import FinancialDataGuard from "@/components/financial-data-guard";
 import CurrencySelector from "@/components/currency-selector";
 import { useCurrency } from "@/contexts/currency-context";
-
-interface CategoryViewProps {
-  category: string;
-  instruments: FinancialInstrument[];
-}
-
-function CategoryView({ category, instruments }: CategoryViewProps) {
-  const categoryInfo = CATEGORIES.find(cat => cat.key === category);
-  
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-          <span className="text-2xl">{categoryInfo?.icon}</span>
-          {categoryInfo?.name}
-        </h2>
-        <Badge variant="outline" className="text-muted-foreground">
-          {instruments.length} instrumen
-        </Badge>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {instruments.map((instrument) => (
-          <Link key={instrument.symbol} href={`/asset/${instrument.symbol}`}>
-            <Card className="bg-background border-border hover:bg-accent/50 transition-colors cursor-pointer group">
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-foreground">{instrument.symbol}</span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate">{instrument.name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{instrument.description}</p>
-                    </div>
-                  </div>
-                  <MiniChart symbol={instrument.symbol} />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('stocks');
@@ -121,10 +71,12 @@ export default function Home() {
 
         {/* Instruments Grid */}
         <div className="max-w-7xl mx-auto">
-          <CategoryView 
-            category={selectedCategory} 
-            instruments={filteredInstruments} 
-          />
+          <FinancialDataGuard title="Pasar Keuangan">
+            <LazyCategoryView 
+              category={selectedCategory} 
+              instruments={filteredInstruments} 
+            />
+          </FinancialDataGuard>
         </div>
 
         {/* Footer */}

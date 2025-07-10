@@ -115,9 +115,9 @@ export default function StockOverview({ symbol, period }: StockOverviewProps) {
             </div>
           </div>
           <div className="text-right mt-4 md:mt-0">
-            <div className={`text-3xl font-bold font-mono transition-colors duration-200 ${
-              isAnimating && priceChange === 'up' ? 'text-green-500' : 
-              isAnimating && priceChange === 'down' ? 'text-red-500' : 
+            <div className={`text-3xl font-bold font-mono transition-all duration-300 ${
+              isAnimating && priceChange === 'up' ? 'text-green-500 animate-pulse bg-green-500/20 px-3 py-2 rounded-lg' : 
+              isAnimating && priceChange === 'down' ? 'text-red-500 animate-pulse bg-red-500/20 px-3 py-2 rounded-lg' : 
               'text-foreground'
             }`}>
               {formatCurrency(convertPrice(stockData.currentPrice, 'USD'))}

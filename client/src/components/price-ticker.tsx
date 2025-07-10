@@ -61,9 +61,9 @@ export default function PriceTicker({ symbol, className = "" }: PriceTickerProps
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="flex items-center gap-1">
-        <span className={`font-mono text-lg font-bold transition-colors duration-200 ${
-          isAnimating && priceChange === 'up' ? 'text-green-500' : 
-          isAnimating && priceChange === 'down' ? 'text-red-500' : 
+        <span className={`font-mono text-lg font-bold transition-all duration-300 ${
+          isAnimating && priceChange === 'up' ? 'text-green-500 animate-pulse bg-green-500/20 px-2 py-1 rounded' : 
+          isAnimating && priceChange === 'down' ? 'text-red-500 animate-pulse bg-red-500/20 px-2 py-1 rounded' : 
           'text-foreground'
         }`}>
           {formatCurrency(currentPrice)}
