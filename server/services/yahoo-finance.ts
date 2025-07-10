@@ -32,13 +32,13 @@ try:
     shares_outstanding = info.get("sharesOutstanding", 0)
     market_cap_raw = info.get("marketCap") or (shares_outstanding * current_price if shares_outstanding else 0) or 0
     if market_cap_raw >= 1e12:
-        market_cap = f"${market_cap_raw / 1e12:.2f}T"
+        market_cap = f"\\${market_cap_raw / 1e12:.2f}T"
     elif market_cap_raw >= 1e9:
-        market_cap = f"${market_cap_raw / 1e9:.2f}B"
+        market_cap = f"\\${market_cap_raw / 1e9:.2f}B"
     elif market_cap_raw >= 1e6:
-        market_cap = f"${market_cap_raw / 1e6:.2f}M"
+        market_cap = f"\\${market_cap_raw / 1e6:.2f}M"
     elif market_cap_raw > 0:
-        market_cap = f"${market_cap_raw:,.0f}"
+        market_cap = f"\\${market_cap_raw:,.0f}"
     else:
         market_cap = "N/A"
     
