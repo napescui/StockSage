@@ -19,6 +19,9 @@ export default function MiniChart({ symbol, className = "" }: MiniChartProps) {
   useEffect(() => {
     if (stockData?.history && plotRef.current) {
       import('plotly.js-dist').then((Plotly) => {
+        // Double-check the ref is still valid after async import
+        if (!plotRef.current) return;
+        
         const prices = stockData.history.map((d: any) => d.close);
         const dates = stockData.history.map((d: any) => d.date);
         
@@ -55,7 +58,7 @@ export default function MiniChart({ symbol, className = "" }: MiniChartProps) {
           staticPlot: true,
         };
 
-        Plotly.newPlot(plotRef.current!, [trace], layout, config);
+        Plotly.newPlot(plotRef.current, [trace], layout, config);
       });
     }
   }, [stockData]);
