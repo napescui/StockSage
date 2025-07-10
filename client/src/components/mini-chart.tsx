@@ -11,9 +11,9 @@ export default function MiniChart({ symbol, className = "" }: MiniChartProps) {
   const plotRef = useRef<HTMLDivElement>(null);
   
   const { data: stockData, isLoading } = useQuery({
-    queryKey: [`/api/stock/${symbol}?period=1wk`],
+    queryKey: [`/api/stock/${symbol}?period=1d`],
     enabled: !!symbol,
-    refetchInterval: 15000, // Update every 15 seconds
+    refetchInterval: 30000, // Update every 30 seconds for homepage
   });
 
   useEffect(() => {

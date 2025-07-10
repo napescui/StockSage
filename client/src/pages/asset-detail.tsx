@@ -11,6 +11,7 @@ import TechnicalIndicators from "@/components/technical-indicators";
 import DataTable from "@/components/data-table";
 import AIChat from "@/components/ai-chat";
 import { FINANCIAL_INSTRUMENTS } from "@shared/financial-data";
+import RealTimeDashboard from "@/components/real-time-dashboard";
 
 export default function AssetDetail() {
   const { symbol } = useParams<{ symbol: string }>();
@@ -83,6 +84,9 @@ export default function AssetDetail() {
             </p>
           </div>
         </div>
+
+        {/* Real-Time Dashboard */}
+        <RealTimeDashboard symbol={currentSymbol} />
 
         {/* Controls */}
         <div className="mb-6">

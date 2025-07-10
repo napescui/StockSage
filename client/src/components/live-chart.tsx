@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, RefreshCw } from "lucide-react";
+import PriceTicker from "@/components/price-ticker";
 
 interface LiveChartProps {
   symbol: string;
@@ -39,40 +40,93 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
   useEffect(() => {
     if (stockData?.history && plotRef.current) {
       import('plotly.js-dist').then((Plotly) => {
+        const history = stockData.history;
+        const prices = history.map((d: any) => d.close);
+        const dates = history.map((d: any) => new Date(d.date));
+        
+        // Determine price trend color
+        const firstPrice = prices[0] || 0;
+        const lastPrice = prices[prices.length - 1] || 0;
+        const isPositive = lastPrice >= firstPrice;
+        
+        // Create candlestick-like visualization for better detail
         const trace = {
-          x: stockData.history.map((d: any) => d.date),
-          y: stockData.history.map((d: any) => d.close),
+          x: dates,
+          y: prices,
           type: 'scatter',
-          mode: 'lines',
-          line: { color: '#00D4AA', width: 2 },
+          mode: 'lines+markers',
+          line: { 
+            color: isPositive ? '#10b981' : '#ef4444', 
+            width: 2,
+            shape: 'linear'
+          },
+          marker: {
+            size: 4,
+            color: isPositive ? '#10b981' : '#ef4444',
+            symbol: 'circle'
+          },
           fill: 'tonexty',
-          fillcolor: 'rgba(0, 212, 170, 0.1)',
-          name: 'Price',
+          fillcolor: isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+          name: `${stockData.symbol} - $${lastPrice.toFixed(2)}`,
+          hovertemplate: '<b>%{fullData.name}</b><br>' +
+                        'Waktu: %{x}<br>' +
+                        'Harga: $%{y:.2f}<br>' +
+                        '<extra></extra>',
         };
 
+        // Enhanced layout with better time formatting
         const layout = {
           title: '',
           xaxis: { 
-            title: 'Time',
+            title: 'Waktu (10 Juli 2025)',
             gridcolor: '#334155',
             color: '#94a3b8',
-            tickfont: { family: 'Roboto Mono', size: 10 }
+            tickfont: { family: 'Roboto Mono', size: 10 },
+            tickformat: '%H:%M:%S',
+            type: 'date',
+            showspikes: true,
+            spikecolor: '#94a3b8',
+            spikethickness: 1,
+            spikedash: 'dot'
           },
           yaxis: { 
-            title: 'Price ($)',
+            title: 'Harga ($)',
             gridcolor: '#334155',
             color: '#94a3b8',
-            tickfont: { family: 'Roboto Mono', size: 10 }
+            tickfont: { family: 'Roboto Mono', size: 10 },
+            tickformat: '.2f',
+            showspikes: true,
+            spikecolor: '#94a3b8',
+            spikethickness: 1,
+            spikedash: 'dot'
           },
           plot_bgcolor: '#0f172a',
           paper_bgcolor: '#0f172a',
           font: { color: '#f8fafc' },
-          margin: { l: 50, r: 50, t: 30, b: 50 },
+          margin: { l: 60, r: 20, t: 30, b: 60 },
+          hovermode: 'x unified',
+          showlegend: true,
+          legend: {
+            x: 0,
+            y: 1,
+            bgcolor: 'rgba(15, 23, 42, 0.8)',
+            bordercolor: '#334155',
+            borderwidth: 1
+          }
         };
 
         const config = {
           responsive: true,
-          displayModeBar: false,
+          displayModeBar: true,
+          displaylogo: false,
+          modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d'],
+          toImageButtonOptions: {
+            format: 'png',
+            filename: `${stockData.symbol}_chart_${new Date().toISOString().split('T')[0]}`,
+            height: 500,
+            width: 800,
+            scale: 1
+          }
         };
 
         Plotly.newPlot(plotRef.current!, [trace], layout, config);
@@ -145,6 +199,7 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
             <Badge variant={isLive ? "default" : "secondary"} className="text-xs">
               {isLive ? "LIVE" : "PAUSED"}
             </Badge>
+            <PriceTicker symbol={symbol} />
           </div>
           
           <div className="flex items-center gap-2">
@@ -231,10 +286,11 @@ export default function LiveChart({ symbol, period, onPeriodChange }: LiveChartP
         {/* Status Info */}
         <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
           <span>
-            Update terakhir: {formatTime(lastUpdate)}
+            Update terakhir: {formatTime(lastUpdate)} | Tanggal: 10 Juli 2025
           </span>
           <span>
-            Update setiap: {INTERVALS.find(i => i.value === updateInterval)?.label}
+            Update setiap: {INTERVALS.find(i => i.value === updateInterval)?.label} | 
+            Data: {stockData?.history?.length || 0} titik
           </span>
         </div>
       </CardHeader>

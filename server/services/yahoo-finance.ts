@@ -11,25 +11,25 @@ import sys
 try:
     ticker = yf.Ticker("${symbol}")
     
-    # Handle different periods and intervals
+    # Handle different periods and intervals for better real-time data
     if "${period}" == "1h":
-        hist = ticker.history(period="1d", interval="1h")
-        date_format = "%Y-%m-%d %H:%M"
+        hist = ticker.history(period="1d", interval="1m")  # 1-minute intervals for 1 hour view
+        date_format = "%Y-%m-%d %H:%M:%S"
     elif "${period}" == "1d":
-        hist = ticker.history(period="1d", interval="1m")
-        date_format = "%Y-%m-%d %H:%M"
+        hist = ticker.history(period="1d", interval="2m")  # 2-minute intervals for 1 day
+        date_format = "%Y-%m-%d %H:%M:%S"
     elif "${period}" == "1wk":
-        hist = ticker.history(period="1wk", interval="1h")
+        hist = ticker.history(period="1wk", interval="15m")  # 15-minute intervals for 1 week
         date_format = "%Y-%m-%d %H:%M"
     elif "${period}" == "1mo":
-        hist = ticker.history(period="1mo", interval="1d")
-        date_format = "%Y-%m-%d"
+        hist = ticker.history(period="1mo", interval="1h")  # 1-hour intervals for 1 month
+        date_format = "%Y-%m-%d %H:%M"
     elif "${period}" == "1y":
         hist = ticker.history(period="1y", interval="1d")
         date_format = "%Y-%m-%d"
     else:
-        hist = ticker.history(period="${period}")
-        date_format = "%Y-%m-%d"
+        hist = ticker.history(period="${period}", interval="1m")
+        date_format = "%Y-%m-%d %H:%M:%S"
     
     info = ticker.info
 
